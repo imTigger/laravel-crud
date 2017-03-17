@@ -1,0 +1,26 @@
+{
+    "name": "imtigger/laravel-crud",
+    "description": "Laravel CRUD Controller",
+    "license": "property",
+    "authors": [
+        {
+            "name": "Tiger",
+            "email": "tiger@tiger-workshop.com"
+        }
+    ],
+    "require": {
+        "php": ">=5.6.4",
+        "laravel/framework": "5.3.*",
+		"yajra/laravel-datatables-oracle": "~6.0",
+		"kris/laravel-form-builder": "^1.7",
+		"rutorika/sortable": "^3.2",
+		"dimsav/laravel-translatable": "^6.0"
+    },
+	    "autoload": {
+        "psr-4": {
+            "Imtigger\\LaravelCRUD\\": "src"
+        }
+    },
+    "minimum-stability": "dev",
+    "prefer-stable": true
+}
