@@ -113,7 +113,7 @@ abstract class CRUDController extends BaseController
         $entity = ($this->entityClass)::findOrFail($id);
 
         $form = $this->showForm($entity, $id);
-        $this->showFormCallback($form);
+        $this->showFormHook($form);
 
         $this->data['entity'] = $entity;
         $this->data['form'] = $form;
@@ -143,7 +143,7 @@ abstract class CRUDController extends BaseController
      *
      * @param Form $form
      */
-    protected function showFormCallback($form) {
+    protected function showFormHook($form) {
         $form->disableFields();
     }
 
@@ -158,7 +158,7 @@ abstract class CRUDController extends BaseController
         }
 
         $form = $this->createForm();
-        $this->createFormCallback($form);
+        $this->createFormHook($form);
 
         $this->data['form'] = $form;
         $this->data['action'] = 'create';
@@ -184,7 +184,7 @@ abstract class CRUDController extends BaseController
      *
      * @param Form $form
      */
-    protected function createFormCallback($form) {
+    protected function createFormHook($form) {
 
     }
 
@@ -200,13 +200,13 @@ abstract class CRUDController extends BaseController
         }
 
         $form = $this->form($this->formClass);
-        $this->storeFormCallback($form);
+        $this->storeFormHook($form);
 
         if (!$form->isValid()) {
             return redirect()->back()->withErrors($form->getErrors())->withInput();
         }
 
-        $this->storeOnSave();
+        $this->storeSave();
 
         return redirect()->route("$this->routePrefix.index")->with('status', trans('laravel-crud::ui.message.create_success', ['name' => trans($this->entityName)]));
     }
@@ -216,7 +216,7 @@ abstract class CRUDController extends BaseController
      *
      * @param Form $form
      */
-    protected function storeFormCallback($form) {
+    protected function storeFormHook($form) {
 
     }
 
@@ -225,7 +225,7 @@ abstract class CRUDController extends BaseController
      *
      * @return Model
      */
-    protected function storeOnSave() {
+    protected function storeSave() {
         /** @var Model|Translatable $entity */
         $entity = new $this->entityClass;
 
@@ -272,7 +272,7 @@ abstract class CRUDController extends BaseController
         $entity = ($this->entityClass)::findOrFail($id);
 
         $form = $this->editForm($entity, $id);
-        $this->editFormCallback($form);
+        $this->editFormHook($form);
 
         $this->data['entity'] = $entity;
         $this->data['form'] = $form;
@@ -302,7 +302,7 @@ abstract class CRUDController extends BaseController
      *
      * @param Form $form
      */
-    protected function editFormCallback($form) {
+    protected function editFormHook($form) {
 
     }
 
@@ -320,13 +320,13 @@ abstract class CRUDController extends BaseController
         $entity = ($this->entityClass)::findOrFail($id);
 
         $form = $this->form($this->formClass);
-        $this->updateFormCallback($form);
+        $this->updateFormHook($form);
 
         if (!$form->isValid()) {
             return redirect()->back()->withErrors($form->getErrors())->withInput();
         }
 
-        $this->updateOnSave($entity);
+        $this->updateSave($entity);
 
         return redirect()->route("$this->routePrefix.index")->with('status', trans('laravel-crud::ui.message.edit_success', ['name' => trans($this->entityName)]));
     }
@@ -336,7 +336,7 @@ abstract class CRUDController extends BaseController
      *
      * @param Form $form
      */
-    public function updateFormCallback($form) {
+    public function updateFormHook($form) {
 
     }
 
@@ -344,8 +344,9 @@ abstract class CRUDController extends BaseController
      * Trigger when update method
      *
      * @param Model|Translatable $entity
+     * @return Model|Translatable $entity
      */
-    protected function updateOnSave($entity) {
+    protected function updateSave($entity) {
         $fillables = collect($entity->getFillable());
 
         // Fill non-translated attributes
@@ -371,6 +372,8 @@ abstract class CRUDController extends BaseController
         }
 
         $entity->save();
+
+        return $entity;
     }
 
     /**
@@ -389,18 +392,6 @@ abstract class CRUDController extends BaseController
         $entity->delete();
 
         return redirect()->route("$this->routePrefix.index")->with('status', trans('laravel-crud::ui.message.delete_success', ['name' => trans($this->entityName)]));
-    }
-
-
-    /**
-     * Extra Datatable action field, append string after default actions
-     *
-     * @param $item
-     * @return string
-     */
-    protected function extraActions($item)
-    {
-        return null;
     }
 
     /**
@@ -441,6 +432,17 @@ abstract class CRUDController extends BaseController
     }
 
     /**
+     * Extra Datatable action field, append string after default actions
+     *
+     * @param $item
+     * @return string
+     */
+    protected function ajaxListExtraActions($item)
+    {
+        return null;
+    }
+
+    /**
      * Construct datatable object
      *
      * @param $items
@@ -452,7 +454,7 @@ abstract class CRUDController extends BaseController
                 return
                     ($this->isViewable ? '<a href="' . route("{$this->routePrefix}.show", [$item->id]) .'" class="btn btn-xs btn-success"><i class="glyphicon glyphicon-eye-open"></i> ' . trans('laravel-crud::ui.button.view') . '</a> ' : '') .
                     ($this->isEditable ? '<a href="' . route("{$this->routePrefix}.edit", [$item->id]) .'" class="btn btn-xs btn-primary"><i class="glyphicon glyphicon-edit"></i> ' . trans('laravel-crud::ui.button.edit') . '</a> ' : '') .
-                    $this->extraActions($item);
+                    $this->ajaxListExtraActions($item);
             });
 
         if (property_exists($this->entityClass, 'translatedAttributes')) {
