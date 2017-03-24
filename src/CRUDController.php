@@ -332,7 +332,7 @@ abstract class CRUDController extends BaseController
         $entity = ($this->entityClass)::findOrFail($id);
 
         if (!$this->havePermission('write', $entity) || !$this->isDeletable) {
-            return redirect()->route($this->noPermissionRoute)->with('status', "Permission denied");
+            return $this->permissionDeniedResponse();
         }
 
         $entity->delete();
