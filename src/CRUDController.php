@@ -19,7 +19,7 @@ use Rutorika\Sortable\SortableTrait;
  *
  * Interoperable with:
  * Datatables search, row-reorder - https://github.com/yajra/laravel-datatables
- * Entrust ACL - https://github.com/Zizaco/entrust
+ * Laratrust ACL - https://github.com/santigarcor/laratrust
  * Translatable - https://github.com/dimsav/laravel-translatable
  * Sortable - https://github.com/boxfrommars/rutorika-sortable
  *
