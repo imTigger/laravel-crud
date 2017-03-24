@@ -3,7 +3,6 @@
 namespace Imtigger\LaravelCRUD;
 
 use Illuminate\Routing\Controller as BaseController;
-use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Config;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Input;
@@ -11,6 +10,7 @@ use Illuminate\Support\Facades\Request;
 use Kris\LaravelFormBuilder\Form;
 use Kris\LaravelFormBuilder\FormBuilderTrait;
 use Dimsav\Translatable\Translatable;
+use Laratrust\LaratrustFacade as Laratrust;
 use Yajra\Datatables\Facades\Datatables;
 use Rutorika\Sortable\SortableTrait;
 
@@ -467,7 +467,7 @@ abstract class CRUDController extends BaseController
      * @return bool
      */
     protected function havePermission($action) {
-        return Auth::user()->can("{$this->permissionPrefix}.{$action}");
+        return Laratrust::can("{$this->permissionPrefix}.{$action}");
     }
 
     /**
