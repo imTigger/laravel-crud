@@ -29,6 +29,7 @@ use Rutorika\Sortable\SortableTrait;
  * @property string $entityName
  * @property \Eloquent $entityClass
  * @property string $formClass
+ * @property bool $isCreatable
  * @property bool $isEditable
  * @property bool $isViewable
  * @property bool $isDeletable
