@@ -85,18 +85,7 @@ abstract class CRUDController extends BaseController
             return $this->permissionDeniedResponse();
         }
 
-        $this->indexExtraData();
-
         return view("{$this->viewPrefix}.index", $this->data);
-    }
-
-    /**
-     * Add data to index view using $this->data['key'] = $value;
-     *
-     * @return void
-     */
-    protected function indexExtraData() {
-
     }
 
     /**
