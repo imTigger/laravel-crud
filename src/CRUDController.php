@@ -95,11 +95,11 @@ abstract class CRUDController extends BaseController
      * @return \Illuminate\Http\JsonResponse
      */
     public function show($id) {
-        if (!$this->havePermission('read') || !$this->isViewable) {
+        $entity = ($this->entityClass)::findOrFail($id);
+
+        if (!$this->havePermission('read', $entity) || !$this->isViewable) {
             return $this->permissionDeniedResponse();
         }
-
-        $entity = ($this->entityClass)::findOrFail($id);
 
         $form = $this->showForm($entity, $id);
         $form->disableFields();
@@ -229,11 +229,11 @@ abstract class CRUDController extends BaseController
      * @return \Illuminate\Http\JsonResponse
      */
     public function edit($id) {
-        if (!$this->havePermission('write') || !$this->isEditable) {
+        $entity = ($this->entityClass)::findOrFail($id);
+
+        if (!$this->havePermission('write', $entity) || !$this->isEditable) {
             return $this->permissionDeniedResponse();
         }
-
-        $entity = ($this->entityClass)::findOrFail($id);
 
         $form = $this->editForm($entity, $id);
 
@@ -267,11 +267,11 @@ abstract class CRUDController extends BaseController
      * @return \Illuminate\Http\RedirectResponse|\Illuminate\Http\JsonResponse
      */
     public function update($id) {
-        if (!$this->havePermission('write') || !$this->isEditable) {
+        $entity = ($this->entityClass)::findOrFail($id);
+
+        if (!$this->havePermission('write', $entity) || !$this->isEditable) {
             return $this->permissionDeniedResponse();
         }
-
-        $entity = ($this->entityClass)::findOrFail($id);
 
         $form = $this->form($this->formClass);
 
@@ -326,11 +326,11 @@ abstract class CRUDController extends BaseController
      * @return mixed
      */
     public function destroy($id) {
-        if (!$this->havePermission('write') || !$this->isDeletable) {
+        $entity = ($this->entityClass)::findOrFail($id);
+
+        if (!$this->havePermission('write', $entity) || !$this->isDeletable) {
             return redirect()->route($this->noPermissionRoute)->with('status', "Permission denied");
         }
-
-        $entity = ($this->entityClass)::findOrFail($id);
 
         $entity->delete();
 
@@ -466,8 +466,13 @@ abstract class CRUDController extends BaseController
      * @param string $action
      * @return bool
      */
-    protected function havePermission($action) {
-        return Laratrust::can("{$this->permissionPrefix}.{$action}");
+    protected function havePermission($action, $entity = null) {
+        // If entity is specified and entity is Ownable, check ownership
+        if ($entity != null && in_array('Laratrust\Contracts\Ownable', class_implements($this->entityClass))) {
+            return Laratrust::canAndOwns("{$this->permissionPrefix}.{$action}", $entity);
+        } else {
+            return Laratrust::can("{$this->permissionPrefix}.{$action}");
+        }
     }
 
     /**
