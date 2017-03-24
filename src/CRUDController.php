@@ -38,6 +38,7 @@ abstract class CRUDController extends BaseController
     use FormBuilderTrait;
 
     protected $noPermissionRoute = 'admin';
+    protected $isCreatable = true;
     protected $isEditable = true;
     protected $isViewable = true;
     protected $isDeletable = true;
@@ -133,7 +134,7 @@ abstract class CRUDController extends BaseController
      * @return \Illuminate\Http\JsonResponse
      */
     public function create() {
-        if (!$this->havePermission('write')) {
+        if (!$this->havePermission('write') || !$this->isCreatable) {
             return $this->permissionDeniedResponse();
         }
 
@@ -165,7 +166,7 @@ abstract class CRUDController extends BaseController
      */
     public function store()
     {
-        if (!$this->havePermission('write')) {
+        if (!$this->havePermission('write') || !$this->isCreatable) {
             return $this->permissionDeniedResponse();
         }
 
