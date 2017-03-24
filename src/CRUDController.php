@@ -56,7 +56,8 @@ abstract class CRUDController extends BaseController
         $this->data['routePrefix'] = $this->routePrefix;
         $this->data['permissionPrefix'] = $this->permissionPrefix;
         $this->data['entityName'] = $this->entityName;
-
+        
+        $this->data['isCreatable'] = $this->isCreatable;
         $this->data['isEditable'] = $this->isEditable;
         $this->data['isViewable'] = $this->isViewable;
         $this->data['isDeletable'] = $this->isDeletable;
