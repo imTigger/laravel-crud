@@ -37,7 +37,6 @@ abstract class CRUDController extends BaseController
 {
     use FormBuilderTrait;
 
-    protected $noPermissionRoute = 'admin';
     protected $isCreatable = true;
     protected $isEditable = true;
     protected $isViewable = true;
