@@ -513,7 +513,11 @@ abstract class CRUDController extends BaseController
         /** @var Model|SortableTrait $to */
         $to = ($this->entityClass)::findOrFail(Input::get('to'));
 
-        $from->moveBefore($to);
+        if ($from->position > $to->position) {
+            $from->moveBefore($to);
+        } else {
+            $from->moveAfter($to);
+        }
     }
 
     /**
