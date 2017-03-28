@@ -49,7 +49,7 @@ abstract class CRUDController extends BaseController
         if (!property_exists($this, 'permissionPrefix')) throw new \Exception("permissionPrefix not defined");
         if (!property_exists($this, 'entityName')) throw new \Exception("entityName not defined");
         if (!property_exists($this, 'entityClass')) throw new \Exception("entityClass not defined");
-        if (!property_exists($this, 'formClass')) throw new \Exception("formClass not defined");
+        if (($this->isEditable || $this->isViewable || $this->isDeletable) && !property_exists($this, 'formClass')) throw new \Exception("formClass not defined");
 
         $this->data['viewPrefix'] = $this->viewPrefix;
         $this->data['routePrefix'] = $this->routePrefix;
@@ -85,7 +85,7 @@ abstract class CRUDController extends BaseController
             return $this->permissionDeniedResponse();
         }
 
-        $this->indexData();
+        $this->indexExtraData();
 
         return view("{$this->viewPrefix}.index", $this->data);
     }
@@ -95,7 +95,7 @@ abstract class CRUDController extends BaseController
      *
      * @return void
      */
-    protected function indexData() {
+    protected function indexExtraData() {
 
     }
 
@@ -113,7 +113,7 @@ abstract class CRUDController extends BaseController
         $entity = ($this->entityClass)::findOrFail($id);
 
         $form = $this->showForm($entity, $id);
-        $this->showFormCallback($form);
+        $form->disableFields();
 
         $this->data['entity'] = $entity;
         $this->data['form'] = $form;
@@ -139,15 +139,6 @@ abstract class CRUDController extends BaseController
     }
 
     /**
-     * Trigger after show form created to modify it
-     *
-     * @param Form $form
-     */
-    protected function showFormCallback($form) {
-        $form->disableFields();
-    }
-
-    /**
      * HTTP create handler
      *
      * @return \Illuminate\Http\JsonResponse
@@ -158,7 +149,6 @@ abstract class CRUDController extends BaseController
         }
 
         $form = $this->createForm();
-        $this->createFormCallback($form);
 
         $this->data['form'] = $form;
         $this->data['action'] = 'create';
@@ -180,15 +170,6 @@ abstract class CRUDController extends BaseController
     }
 
     /**
-     * * Trigger after create form created to modify it
-     *
-     * @param Form $form
-     */
-    protected function createFormCallback($form) {
-
-    }
-
-    /**
      * HTTP store handler
      *
      * @return \Illuminate\Http\RedirectResponse|\Illuminate\Http\JsonResponse
@@ -199,25 +180,19 @@ abstract class CRUDController extends BaseController
             return $this->permissionDeniedResponse();
         }
 
-        $form = $this->form($this->formClass);
-        $this->storeFormCallback($form);
+        $form = $this->storeForm();
 
         if (!$form->isValid()) {
             return redirect()->back()->withErrors($form->getErrors())->withInput();
         }
 
-        $this->storeOnSave();
+        $this->storeSave();
 
         return redirect()->route("$this->routePrefix.index")->with('status', trans('laravel-crud::ui.message.create_success', ['name' => trans($this->entityName)]));
     }
 
-    /**
-     * Trigger after store form created to modify it
-     *
-     * @param Form $form
-     */
-    protected function storeFormCallback($form) {
-
+    protected function storeForm() {
+        return $this->form($this->formClass);
     }
 
     /**
@@ -225,7 +200,7 @@ abstract class CRUDController extends BaseController
      *
      * @return Model
      */
-    protected function storeOnSave() {
+    protected function storeSave() {
         /** @var Model|Translatable $entity */
         $entity = new $this->entityClass;
 
@@ -272,7 +247,6 @@ abstract class CRUDController extends BaseController
         $entity = ($this->entityClass)::findOrFail($id);
 
         $form = $this->editForm($entity, $id);
-        $this->editFormCallback($form);
 
         $this->data['entity'] = $entity;
         $this->data['form'] = $form;
@@ -298,15 +272,6 @@ abstract class CRUDController extends BaseController
     }
 
     /**
-     * Trigger after edit form created to modify it
-     *
-     * @param Form $form
-     */
-    protected function editFormCallback($form) {
-
-    }
-
-    /**
      * HTTP update handler
      *
      * @param int $id
@@ -320,32 +285,22 @@ abstract class CRUDController extends BaseController
         $entity = ($this->entityClass)::findOrFail($id);
 
         $form = $this->form($this->formClass);
-        $this->updateFormCallback($form);
 
         if (!$form->isValid()) {
             return redirect()->back()->withErrors($form->getErrors())->withInput();
         }
 
-        $this->updateOnSave($entity);
+        $this->updateSave($entity);
 
         return redirect()->route("$this->routePrefix.index")->with('status', trans('laravel-crud::ui.message.edit_success', ['name' => trans($this->entityName)]));
     }
-
-    /**
-     * Trigger after update form created to modify it
-     *
-     * @param Form $form
-     */
-    public function updateFormCallback($form) {
-
-    }
-
     /**
      * Trigger when update method
      *
      * @param Model|Translatable $entity
+     * @return Model|Translatable $entity
      */
-    protected function updateOnSave($entity) {
+    protected function updateSave($entity) {
         $fillables = collect($entity->getFillable());
 
         // Fill non-translated attributes
@@ -371,6 +326,8 @@ abstract class CRUDController extends BaseController
         }
 
         $entity->save();
+
+        return $entity;
     }
 
     /**
@@ -389,18 +346,6 @@ abstract class CRUDController extends BaseController
         $entity->delete();
 
         return redirect()->route("$this->routePrefix.index")->with('status', trans('laravel-crud::ui.message.delete_success', ['name' => trans($this->entityName)]));
-    }
-
-
-    /**
-     * Extra Datatable action field, append string after default actions
-     *
-     * @param $item
-     * @return string
-     */
-    protected function extraActions($item)
-    {
-        return null;
     }
 
     /**
@@ -441,6 +386,19 @@ abstract class CRUDController extends BaseController
     }
 
     /**
+     * Extra Datatable action field, append string after default actions
+     *
+     * @param $item
+     * @return string
+     */
+    protected function ajaxListActions($item)
+    {
+        return
+            ($this->isViewable ? '<a href="' . route("{$this->routePrefix}.show", [$item->id]) .'" class="btn btn-xs btn-success"><i class="glyphicon glyphicon-eye-open"></i> ' . trans('laravel-crud::ui.button.view') . '</a> ' : '') .
+            ($this->isEditable ? '<a href="' . route("{$this->routePrefix}.edit", [$item->id]) .'" class="btn btn-xs btn-primary"><i class="glyphicon glyphicon-edit"></i> ' . trans('laravel-crud::ui.button.edit') . '</a> ' : '');
+    }
+
+    /**
      * Construct datatable object
      *
      * @param $items
@@ -449,10 +407,7 @@ abstract class CRUDController extends BaseController
     public function ajaxListDataTable($items) {
         $datatable = Datatables::of($items)
             ->addColumn('actions', function ($item) {
-                return
-                    ($this->isViewable ? '<a href="' . route("{$this->routePrefix}.show", [$item->id]) .'" class="btn btn-xs btn-success"><i class="glyphicon glyphicon-eye-open"></i> ' . trans('laravel-crud::ui.button.view') . '</a> ' : '') .
-                    ($this->isEditable ? '<a href="' . route("{$this->routePrefix}.edit", [$item->id]) .'" class="btn btn-xs btn-primary"><i class="glyphicon glyphicon-edit"></i> ' . trans('laravel-crud::ui.button.edit') . '</a> ' : '') .
-                    $this->extraActions($item);
+                return $this->ajaxListActions($item);
             });
 
         if (property_exists($this->entityClass, 'translatedAttributes')) {
@@ -526,7 +481,7 @@ abstract class CRUDController extends BaseController
      * @param string $action
      * @return bool
      */
-    public function havePermission($action) {
+    protected function havePermission($action) {
         return Auth::user()->can("{$this->permissionPrefix}.{$action}");
     }
 
@@ -536,7 +491,7 @@ abstract class CRUDController extends BaseController
      * @param string $message
      * @return \Illuminate\Http\JsonResponse
      */
-    public function permissionDeniedResponse($message = "Permission denied") {
+    protected function permissionDeniedResponse($message = "Permission denied") {
         if (Request::ajax()) {
             return response()->json(['error' => $message]);
         } else {
