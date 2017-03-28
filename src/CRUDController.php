@@ -42,6 +42,7 @@ abstract class CRUDController extends BaseController
     protected $isEditable = true;
     protected $isViewable = true;
     protected $isDeletable = true;
+    protected $isReorderable = false;
     protected $data = [];
 
     public function __construct() {
@@ -51,6 +52,7 @@ abstract class CRUDController extends BaseController
         if (!property_exists($this, 'entityName')) throw new \Exception("entityName not defined");
         if (!property_exists($this, 'entityClass')) throw new \Exception("entityClass not defined");
         if (($this->isCreatable || $this->isEditable || $this->isViewable || $this->isDeletable) && !property_exists($this, 'formClass')) throw new \Exception("formClass not defined");
+        if ($this->isReorderable && !in_array('Rutorika\Sortable\SortableTrait', class_uses($this->entityClass))) throw new \Exception("{$this->entityClass} must use SortableTrait trait");
 
         $this->data['viewPrefix'] = $this->viewPrefix;
         $this->data['routePrefix'] = $this->routePrefix;
@@ -61,6 +63,7 @@ abstract class CRUDController extends BaseController
         $this->data['isEditable'] = $this->isEditable;
         $this->data['isViewable'] = $this->isViewable;
         $this->data['isDeletable'] = $this->isDeletable;
+        $this->data['isReorderable'] = $this->isReorderable;
 
         $this->middleware("permission:{$this->permissionPrefix}.read");
         $this->middleware("permission:{$this->permissionPrefix}.write")->except(['index', 'show', 'ajaxList']);
@@ -444,9 +447,8 @@ abstract class CRUDController extends BaseController
      * @return void
      */
     public function ajaxReorder() {
-
-        if (!in_array('Rutorika\Sortable\SortableTrait', class_uses($this->entityClass))) {
-            throw new \Exception("$this->entityClass must use SortableTrait trait");
+        if (!$this->isReorderable) {
+            abort(404);
         }
 
         /** @var Model|SortableTrait $from */
