@@ -10,7 +10,6 @@ use Illuminate\Support\Facades\Request;
 use Kris\LaravelFormBuilder\Form;
 use Kris\LaravelFormBuilder\FormBuilderTrait;
 use Dimsav\Translatable\Translatable;
-use Laratrust\LaratrustFacade as Laratrust;
 use Yajra\Datatables\Facades\Datatables;
 use Rutorika\Sortable\SortableTrait;
 
@@ -62,6 +61,9 @@ abstract class CRUDController extends BaseController
         $this->data['isEditable'] = $this->isEditable;
         $this->data['isViewable'] = $this->isViewable;
         $this->data['isDeletable'] = $this->isDeletable;
+
+        $this->middleware("permission:{$this->permissionPrefix}.read");
+        $this->middleware("permission:{$this->permissionPrefix}.write")->except(['index', 'show', 'ajaxList']);
     }
 
     /**
@@ -84,10 +86,6 @@ abstract class CRUDController extends BaseController
      * @return \Illuminate\Http\JsonResponse
      */
     public function index() {
-        if (!$this->havePermission('read')) {
-            return $this->permissionDeniedResponse();
-        }
-
         return view("{$this->viewPrefix}.index", $this->data);
     }
 
@@ -100,8 +98,8 @@ abstract class CRUDController extends BaseController
     public function show($id) {
         $entity = ($this->entityClass)::findOrFail($id);
 
-        if (!$this->havePermission('read', $entity) || !$this->isViewable) {
-            return $this->permissionDeniedResponse();
+        if (!$this->isViewable) {
+            abort(404);
         }
 
         $form = $this->showForm($entity, $id);
@@ -136,8 +134,8 @@ abstract class CRUDController extends BaseController
      * @return \Illuminate\Http\JsonResponse
      */
     public function create() {
-        if (!$this->havePermission('write') || !$this->isCreatable) {
-            return $this->permissionDeniedResponse();
+        if (!$this->isCreatable) {
+            abort(404);
         }
 
         $form = $this->createForm();
@@ -168,8 +166,8 @@ abstract class CRUDController extends BaseController
      */
     public function store()
     {
-        if (!$this->havePermission('write') || !$this->isCreatable) {
-            return $this->permissionDeniedResponse();
+        if (!$this->isCreatable) {
+            abort(404);
         }
 
         $form = $this->storeForm();
@@ -234,8 +232,8 @@ abstract class CRUDController extends BaseController
     public function edit($id) {
         $entity = ($this->entityClass)::findOrFail($id);
 
-        if (!$this->havePermission('write', $entity) || !$this->isEditable) {
-            return $this->permissionDeniedResponse();
+        if (!$this->isEditable) {
+            abort(404);
         }
 
         $form = $this->editForm($entity, $id);
@@ -272,8 +270,8 @@ abstract class CRUDController extends BaseController
     public function update($id) {
         $entity = ($this->entityClass)::findOrFail($id);
 
-        if (!$this->havePermission('write', $entity) || !$this->isEditable) {
-            return $this->permissionDeniedResponse();
+        if (!$this->isEditable) {
+            abort(404);
         }
 
         $form = $this->form($this->formClass);
@@ -331,8 +329,8 @@ abstract class CRUDController extends BaseController
     public function destroy($id) {
         $entity = ($this->entityClass)::findOrFail($id);
 
-        if (!$this->havePermission('write', $entity) || !$this->isDeletable) {
-            return $this->permissionDeniedResponse();
+        if (!$this->isDeletable) {
+            abort(404);
         }
 
         $entity->delete();
@@ -434,10 +432,6 @@ abstract class CRUDController extends BaseController
      * @return \Illuminate\Http\JsonResponse
      */
     public function ajaxList() {
-        if (!$this->havePermission('read')) {
-            return $this->permissionDeniedResponse();
-        }
-
         $items = $this->ajaxListQuery();
 
         return $this->ajaxListDataTable($items)->make(true);
@@ -468,34 +462,5 @@ abstract class CRUDController extends BaseController
         }
 
         return ['status' => 0];
-    }
-
-    /**
-     * Return if user have permission
-     *
-     * @param string $action
-     * @return bool
-     */
-    protected function havePermission($action, $entity = null) {
-        // If entity is specified and entity is Ownable, check ownership
-        if ($entity != null && in_array('Laratrust\Contracts\Ownable', class_implements($this->entityClass))) {
-            return Laratrust::canAndOwns("{$this->permissionPrefix}.{$action}", $entity);
-        } else {
-            return Laratrust::can("{$this->permissionPrefix}.{$action}");
-        }
-    }
-
-    /**
-     * Return permission denied response depend on request type
-     *
-     * @param string $message
-     * @return \Illuminate\Http\JsonResponse
-     */
-    protected function permissionDeniedResponse($message = "Permission denied") {
-        if (Request::ajax()) {
-            return response()->json(['error' => $message]);
-        } else {
-            return redirect()->route($this->noPermissionRoute)->with('status', $message);
-        }
     }
 }
