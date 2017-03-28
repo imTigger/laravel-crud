@@ -464,15 +464,18 @@ abstract class CRUDController extends BaseController
         }
 
         /** @var Model|SortableTrait $from */
-        $from = ($this->entityClass)::findOrFail(Input::get('from'));
-        /** @var Model|SortableTrait $to */
-        $to = ($this->entityClass)::findOrFail(Input::get('to'));
+        $origin = ($this->entityClass)::findOrFail(Input::get('id'));
 
-        if ($from->position > $to->position) {
-            $from->moveBefore($to);
-        } else {
-            $from->moveAfter($to);
+        /** @var Model|SortableTrait $target */
+        if (Input::get('before')) {
+            $target = ($this->entityClass)::find(Input::get('before'));
+            $origin->moveBefore($target);
+        } else if (Input::get('after')) {
+            $target = ($this->entityClass)::find(Input::get('after'));
+            $origin->moveAfter($target);
         }
+
+        return ['status' => 0];
     }
 
     /**
