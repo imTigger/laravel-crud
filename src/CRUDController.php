@@ -367,7 +367,7 @@ abstract class CRUDController extends BaseController
 
             $query = ($this->entityClass)::select($fields)
                 ->join($foreignTable, "{$foreignTable}.{$relationKey}", '=', "{$table}.id")
-                ->where("{$foreignTable}.locale", 'en');
+                ->where("{$foreignTable}.locale", Config::get('translatable.locale'));
         }
 
         if (in_array('Rutorika\Sortable\SortableTrait', class_uses($this->entityClass))) {
@@ -417,12 +417,8 @@ abstract class CRUDController extends BaseController
                 $datatable->filterColumn($translatedAttribute, function ($query, $keyword) use ($foreignTable, $translatedAttribute) {
                     $query->where("{$foreignTable}.{$translatedAttribute}", 'LIKE', "%{$keyword}%");
                 });
-                $datatable->orderColumn('title', "{$foreignTable}.{$translatedAttribute} $1");
+                $datatable->orderColumn($translatedAttribute, "{$foreignTable}.{$translatedAttribute} $1");
             }
-
-            $datatable->editColumn('title', function ($item) {
-                return "<a href='" . route('frontend.page', [$item->slug]) . "'>{$item->title}</a>";
-            });
         }
 
         return $datatable;
