@@ -14,7 +14,7 @@ class MakeCRUD extends Command
      *
      * @var string
      */
-    protected $signature = 'make:crud {name} {--softdelete} {--sortable}';
+    protected $signature = 'make:crud {name}';
 
     /**
      * The console command description.
@@ -41,16 +41,6 @@ class MakeCRUD extends Command
      */
     public function handle()
     {
-        /*
-        $modelNamespace = $this->ask("Model Namespace", 'App\\Model');
-        $controllerNamespace = $this->ask("Controller Namespace", 'App\\Http\\Controllers');
-
-        $makeController = $this->confirm("Make Controller?", true);
-        $makeModel = $this->confirm("Make Model?", true);
-        $makeView = $this->confirm("Make View?", true);
-        $makeMigration = $this->confirm("Make Migration?", true);
-        */
-
         $this->name = strtolower($this->argument('name'));
         $this->nameSingular = str_singular($this->name);
         $this->namePlural = str_plural($this->name);
