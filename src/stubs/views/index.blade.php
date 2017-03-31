@@ -12,9 +12,9 @@
     <table class="table table-striped table-bordered table-hover" id="dataTables" style="width: 100%">
         <thead>
         <tr>
-            <th data-datatable-id="id" width="50">{{ trans('backend.entity.label.order') }}</th>
-            <th data-datatable-id="name" data-datatable-sortable="false">{{ trans('backend.entity.label.name') }}</th>
-            <th data-datatable-id="actions" data-datatable-searchable="false" data-datatable-sortable="false" data-datatable-class="dt-center" width="180">{{ trans('backend.entity.label.actions') }}</th>
+            <th data-datatable-id="id" width="50">{{ trans('$TRANSLATION_PREFIX$.id') }}</th>
+            <th data-datatable-id="name" data-datatable-sortable="false">{{ trans('$TRANSLATION_PREFIX$.name') }}</th>
+            <th data-datatable-id="actions" data-datatable-searchable="false" data-datatable-sortable="false" data-datatable-class="dt-center" width="180">{{ trans('$TRANSLATION_PREFIX$.actions') }}</th>
         </tr>
         </thead>
         <tbody>
