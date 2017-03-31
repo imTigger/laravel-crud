@@ -41,7 +41,8 @@ class MakeCRUD extends Command
      */
     public function handle()
     {
-        $this->name = strtolower($this->argument('name'));
+        $this->name = $this->argument('name');
+        $this->nameNormalized = str_singular($this->name);
         $this->nameSingular = str_singular($this->name);
         $this->namePlural = str_plural($this->name);
 
@@ -49,28 +50,26 @@ class MakeCRUD extends Command
         $this->formNamespace = 'App\\Forms';
         $this->controllerNamespace = 'App\\Http\\Controllers\\Admin';
 
-        $this->urlName = $this->nameSingular;
-        $this->viewPrefix = 'admin.' . $this->nameSingular;
-        $this->routePrefix = 'admin.' . $this->nameSingular;
-        $this->permissionPrefix = $this->nameSingular;
-        $this->translationPrefix = 'backend.' . $this->nameSingular . '.label';
+        $this->urlName = snake_case($this->nameNormalized);
+        $this->viewPrefix = 'admin.' . snake_case($this->nameNormalized);
+        $this->routePrefix = 'admin.' . snake_case($this->nameNormalized);
+        $this->permissionPrefix = snake_case($this->nameNormalized);
+        $this->translationPrefix = 'backend.' . snake_case($this->nameNormalized) . '.label';
 
-        $this->controllerName = ucfirst($this->nameSingular) . 'Controller';
-        $this->modelName = ucfirst($this->nameSingular);
-        $this->formName = ucfirst($this->nameSingular) . 'Form';
-        $this->migrationName = 'Create' . $this->namePlural . 'Table';
-        $this->tableName = strtolower($this->namePlural);
-        $this->entityName = 'backend.entity.' . strtolower($this->name);
+        $this->controllerName = studly_case($this->nameNormalized) . 'Controller';
+        $this->modelName = studly_case($this->nameNormalized);
+        $this->formName = studly_case($this->nameNormalized) . 'Form';
+        $this->migrationName = 'Create' . studly_case($this->namePlural) . 'Table';
+        $this->tableName = snake_case($this->namePlural);
+        $this->entityName = 'backend.entity.' . snake_case($this->name);
 
-        $this->compileView($this->nameSingular);
-        $this->compileController($this->nameSingular);
-        $this->compileModel($this->nameSingular);
-        $this->compileForm($this->nameSingular);
-        $this->compileMigration($this->nameSingular);
+        $this->compileView($this->nameNormalized);
+        $this->compileController($this->nameNormalized);
+        $this->compileModel($this->nameNormalized);
+        $this->compileForm($this->nameNormalized);
+        $this->compileMigration($this->nameNormalized);
 
-        Artisan::call('laroute:generate');
-
-        $this->info("Now add route to config/web.php:");
+        $this->info("Now add route to config/web.php and run 'laroute:generate'");
         $this->info("\\Imtigger\\LaravelCRUD\\CRUDController::routes('/{$this->urlName}', '\\{$this->controllerNamespace}\\{$this->controllerName}', '{$this->viewPrefix}');");
     }
 
@@ -93,14 +92,14 @@ class MakeCRUD extends Command
         return $this->laravel['path'].'/'.str_replace('\\', '/', $name).'.php';
     }
 
-    protected function getViewPath($modelName)
+    protected function getViewPath($name)
     {
-        return base_path() . '/resources/views/admin/' . strtolower($modelName);
+        return base_path() . '/resources/views/admin/' . snake_case($name);
     }
 
-    protected function getMigrationPath($modelName)
+    protected function getMigrationPath($name)
     {
-        $name = strtolower(str_plural($modelName));
+        $name = snake_case(str_plural($name));
         return base_path() . '/database/migrations/' . date('Y_m_d_His') . '_create_' . $name . '_table.php';
     }
 
@@ -111,11 +110,10 @@ class MakeCRUD extends Command
 
         foreach(['layout.blade.php', 'form.blade.php', 'index.blade.php', 'create.blade.php', 'edit.blade.php', 'show.blade.php'] As $filename) {
             $content = $this->getStubContent("views/{$filename}");
-            // TODO: Replace tokens
+            $content = $this->replaceTokens($content);
             file_put_contents("{$viewDirectoryPath}/{$filename}", $content);
+            $this->info("Created View: {$viewDirectoryPath}/{$filename}");
         }
-
-        $this->info("Creating View: {$viewDirectoryPath}");
     }
 
     protected function compileController($name)
@@ -126,7 +124,7 @@ class MakeCRUD extends Command
         $content = $this->replaceTokens($content);
         file_put_contents("{$this->controllerPath}", $content);
 
-        $this->info("Creating Controller: {$this->controllerPath}");
+        $this->info("Created Controller: {$this->controllerPath}");
     }
 
     protected function compileModel($name)
@@ -137,7 +135,7 @@ class MakeCRUD extends Command
         $content = $this->replaceTokens($content);
         file_put_contents("{$this->modelPath}", $content);
 
-        $this->info("Creating Model: {$this->modelPath}");
+        $this->info("Created Model: {$this->modelPath}");
     }
 
     protected function compileForm($name)
@@ -148,7 +146,7 @@ class MakeCRUD extends Command
         $content = $content = $this->replaceTokens($content);
         file_put_contents("{$this->formPath}", $content);
 
-        $this->info("Creating Form: {$this->formPath}");
+        $this->info("Created Form: {$this->formPath}");
     }
 
     protected function compileMigration($name)
@@ -159,7 +157,7 @@ class MakeCRUD extends Command
         $content = $this->replaceTokens($content);
         file_put_contents("{$this->migrationPath}", $content);
 
-        $this->info("Creating Migration: {$this->migrationPath}");
+        $this->info("Created Migration: {$this->migrationPath}");
     }
 
     protected function getStubContent($path)
