@@ -65,7 +65,7 @@ abstract class CRUDController extends BaseController
         $this->data['isReorderable'] = $this->isReorderable;
 
         $this->middleware("permission:{$this->permissionPrefix}.read");
-        $this->middleware("permission:{$this->permissionPrefix}.write")->except(['index', 'show', 'ajaxList']);
+        $this->middleware("permission:{$this->permissionPrefix}.write")->only(['create', 'store', 'edit', 'update', 'destroy']);
     }
 
     /**
@@ -103,6 +103,10 @@ abstract class CRUDController extends BaseController
         if (!$this->isViewable) {
             abort(404);
         }
+        
+        if (!$this->havePermission('read', $entity)) {
+            abort(403);
+        }
 
         $form = $this->showForm($entity, $id);
         $form->disableFields();
@@ -139,6 +143,10 @@ abstract class CRUDController extends BaseController
         if (!$this->isCreatable) {
             abort(404);
         }
+        
+        if (!$this->havePermission('write')) {
+            abort(403);
+        }
 
         $form = $this->createForm();
 
@@ -170,6 +178,10 @@ abstract class CRUDController extends BaseController
     {
         if (!$this->isCreatable) {
             abort(404);
+        }
+        
+        if (!$this->havePermission('write', $entity)) {
+            abort(403);
         }
 
         $form = $this->storeForm();
@@ -237,6 +249,10 @@ abstract class CRUDController extends BaseController
         if (!$this->isEditable) {
             abort(404);
         }
+        
+        if (!$this->havePermission('write', $entity)) {
+            abort(403);
+        }
 
         $form = $this->editForm($entity, $id);
 
@@ -274,6 +290,10 @@ abstract class CRUDController extends BaseController
 
         if (!$this->isEditable) {
             abort(404);
+        }
+        
+        if (!$this->havePermission('write', $entity)) {
+            abort(403);
         }
 
         $form = $this->form($this->formClass);
@@ -333,6 +353,10 @@ abstract class CRUDController extends BaseController
 
         if (!$this->isDeletable) {
             abort(404);
+        }
+        
+        if (!$this->havePermission('write', $entity)) {
+            abort(403);
         }
 
         $entity->delete();
@@ -459,5 +483,16 @@ abstract class CRUDController extends BaseController
         }
 
         return ['status' => 0];
+    }
+    
+    /**
+     * Additional check after return if user have permission
+     *
+     * @param string $action
+     * @param Model $entity
+     * @return bool
+     */
+    protected function havePermission($action, $entity = null) {
+        return true;
     }
 }
