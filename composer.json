@@ -10,13 +10,13 @@
     ],
     "require": {
         "php": ">=5.6.4",
-        "laravel/framework": "5.3.*",
-		"yajra/laravel-datatables-oracle": "~6.0",
-		"kris/laravel-form-builder": "^1.7",
-		"rutorika/sortable": "^3.2",
-		"dimsav/laravel-translatable": "^6.0"
+        "laravel/framework": "5.*",
+        "yajra/laravel-datatables-oracle": "~6.0",
+        "kris/laravel-form-builder": "^1.7",
+        "rutorika/sortable": "^3.2",
+        "dimsav/laravel-translatable": "^6.0"
     },
-	    "autoload": {
+        "autoload": {
         "psr-4": {
             "Imtigger\\LaravelCRUD\\": "src"
         }
