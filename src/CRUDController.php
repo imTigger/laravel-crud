@@ -180,7 +180,7 @@ abstract class CRUDController extends BaseController
             abort(404);
         }
         
-        if (!$this->havePermission('write', $entity)) {
+        if (!$this->havePermission('write')) {
             abort(403);
         }
 
