@@ -42,6 +42,7 @@ abstract class CRUDController extends BaseController
     protected $isViewable = true;
     protected $isDeletable = true;
     protected $isReorderable = false;
+    protected $rawColumns = ['actions'];
     protected $data = [];
 
     public function __construct() {
@@ -425,6 +426,10 @@ abstract class CRUDController extends BaseController
             ->addColumn('actions', function ($item) {
                 return $this->ajaxListActions($item);
             });
+            
+        if (!empty($this->rawColumns) && method_exists($datatable, 'rawColumns')) {
+            $datatable->rawColumns($this->rawColumns);
+        }
 
         if (property_exists($this->entityClass, 'translatedAttributes')) {
             /** @var Model|Translatable $entity */
