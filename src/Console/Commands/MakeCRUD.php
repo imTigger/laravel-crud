@@ -70,8 +70,8 @@ class MakeCRUD extends Command
         $this->formName = studly_case($this->nameNormalized) . 'Form';
         $this->migrationName = 'Create' . studly_case($this->namePlural) . 'Table';
         $this->tableName = snake_case($this->namePlural);
-        $this->entityName = title_case(strtolower($this->nameNormalized));
-        $this->internalName = snake_case(strtolower($this->nameNormalized));
+        $this->entityName = title_case(str_replace('_', ' ', snake_case($this->nameNormalized)));
+        $this->internalName = snake_case($this->nameNormalized);
 
         if (!$this->option('no-view') && !$this->option('no-ui')) $this->compileView($this->nameNormalized);
         if (!$this->option('no-controller') && !$this->option('no-ui')) $this->compileController($this->nameNormalized);
