@@ -14,7 +14,16 @@ class MakeCRUD extends Command
      *
      * @var string
      */
-    protected $signature = 'make:crud {name}';
+    protected $signature = '
+    make:crud {name} 
+    {--no-model : Generates no model} 
+    {--no-view : Generates no view} 
+    {--no-controller : Generates no controller} 
+    {--no-form : Generates no form} 
+    {--no-migration : Generates no migration} 
+    {--no-language : Generates no language}
+    {--no-ui : Shortcut for --no-view, --no-controller and --no-form}
+    ';
 
     /**
      * The console command description.
@@ -64,15 +73,20 @@ class MakeCRUD extends Command
         $this->entityName = title_case(strtolower($this->nameNormalized));
         $this->internalName = snake_case(strtolower($this->nameNormalized));
 
-        $this->compileView($this->nameNormalized);
-        $this->compileController($this->nameNormalized);
-        $this->compileModel($this->nameNormalized);
-        $this->compileForm($this->nameNormalized);
-        $this->compileMigration($this->nameNormalized);
-        $this->addLanguage($this->nameNormalized);
+        if (!$this->option('no-view') && !$this->option('no-ui')) $this->compileView($this->nameNormalized);
+        if (!$this->option('no-controller') && !$this->option('no-ui')) $this->compileController($this->nameNormalized);
+        if (!$this->option('no-model')) $this->compileModel($this->nameNormalized);
+        if (!$this->option('no-form') && !$this->option('no-ui')) $this->compileForm($this->nameNormalized);
+        if (!$this->option('no-migration')) $this->compileMigration($this->nameNormalized);
+        if (!$this->option('no-language')) $this->addLanguage($this->nameNormalized);
 
-        $this->info("Now add route to config/web.php and run 'laroute:generate'");
-        $this->info("\\Imtigger\\LaravelCRUD\\CRUDController::routes('/{$this->urlName}', '\\{$this->controllerNamespace}\\{$this->controllerName}', '{$this->viewPrefix}');");
+        $this->line("");
+        $this->info("CRUD Generated successfully.");
+
+        if (!$this->option('no-controller') && !$this->option('no-ui')) {
+            $this->info("Now add route to config/web.php and run 'laroute:generate'");
+            $this->info("\\Imtigger\\LaravelCRUD\\CRUDController::routes('/{$this->urlName}', '\\{$this->controllerNamespace}\\{$this->controllerName}', '{$this->viewPrefix}');");
+        }
     }
 
 
