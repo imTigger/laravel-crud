@@ -163,11 +163,13 @@ abstract class CRUDController extends BaseController
      * @return Form
      */
     protected function createForm() {
-        return $this->form($this->formClass, [
+        $form = $this->form($this->formClass, [
             'method' => 'post',
             'url' => route("$this->routePrefix.store"),
             'class' => 'simple-form'
         ]);
+
+        return $form;
     }
 
     /**
@@ -197,7 +199,9 @@ abstract class CRUDController extends BaseController
     }
 
     protected function storeForm() {
-        return $this->form($this->formClass);
+        $form = $this->form($this->formClass);
+
+        return $form;
     }
 
     /**
@@ -272,12 +276,14 @@ abstract class CRUDController extends BaseController
      * @return Form
      */
     protected function editForm($entity, $id) {
-        return $this->form($this->formClass, [
+        $form = $this->form($this->formClass, [
             'method' => 'patch',
             'url' => route("$this->routePrefix.update", $id),
             'class' => 'simple-form',
             'model' => $entity
         ]);
+
+        return $form;
     }
 
     /**
