@@ -52,7 +52,7 @@ abstract class CRUDController extends BaseController
         if (!property_exists($this, 'entityName')) throw new \Exception("entityName not defined");
         if (!property_exists($this, 'entityClass')) throw new \Exception("entityClass not defined");
         if (($this->isCreatable || $this->isEditable || $this->isViewable || $this->isDeletable) && !property_exists($this, 'formClass')) throw new \Exception("formClass not defined");
-        if ($this->isReorderable && !in_array('Rutorika\Sortable\SortableTrait', class_uses($this->entityClass))) throw new \Exception("{$this->entityClass} must use SortableTrait trait");
+        if ($this->isReorderable && !in_array('Rutorika\Sortable\SortableTrait', class_uses($this->entityClass))) throw new \Exception("{$this->entityClass} must use SortableTrait trait when isReorderable = true");
 
         $this->data['viewPrefix'] = $this->viewPrefix;
         $this->data['routePrefix'] = $this->routePrefix;
