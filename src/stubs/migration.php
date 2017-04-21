@@ -13,10 +13,7 @@ class $MIGRATION_NAME$ extends Migration
     public function up()
     {
         Schema::create('$TABLE_NAME$', function (Blueprint $table) {
-            $table->increments('id');
-            $table->string('name');
-            $table->softDeletes();
-            $table->timestamps();
+$MIGRATION_CONTENT$           
         });
     }
 

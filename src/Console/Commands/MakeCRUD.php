@@ -22,6 +22,7 @@ class MakeCRUD extends Command
     {--no-form : Generates no form} 
     {--no-migration : Generates no migration} 
     {--no-language : Generates no language}
+    {--no-soft-delete : No soft delete}
     {--no-ui : Shortcut for --no-view, --no-controller and --no-form}
     ';
 
@@ -31,6 +32,8 @@ class MakeCRUD extends Command
      * @var string
      */
     protected $description = 'Generate CRUD Controller/Model/Migration/View';
+    protected $softDelete = true;
+    protected $indentation = '    ';
 
     /**
      * Create a new command instance.
@@ -50,6 +53,10 @@ class MakeCRUD extends Command
      */
     public function handle()
     {
+        if ($this->option('no-soft-delete')) {
+            $this->softDelete = false;
+        }
+
         $this->name = $this->argument('name');
         $this->nameNormalized = str_singular($this->name);
         $this->nameSingular = str_singular($this->name);
@@ -149,6 +156,19 @@ class MakeCRUD extends Command
 
         $content = $this->getStubContent("Model.php");
         $content = $this->replaceTokens($content);
+
+        $modelContent = '';
+        if ($this->softDelete) {
+            $modelContent .= $this->indentation . "use SoftDeletes;" . PHP_EOL;
+            $modelContent .= PHP_EOL;
+        }
+
+        $modelContent .= $this->indentation . 'protected $fillable = [\'name\'];';
+
+        $content = strtr($content, [
+            '$MODEL_CONTENT$' => $modelContent
+        ]);
+
         file_put_contents("{$this->modelPath}", $content);
 
         $this->info("Created Model: {$this->modelPath}");
@@ -171,6 +191,19 @@ class MakeCRUD extends Command
 
         $content = $this->getStubContent("migration.php");
         $content = $this->replaceTokens($content);
+
+        $migrationContent = '';
+        $migrationContent .= str_repeat($this->indentation, 3) . '$table->increments(\'id\');' . PHP_EOL;
+        $migrationContent .= str_repeat($this->indentation, 3) . '$table->string(\'name\');' . PHP_EOL;
+        if ($this->softDelete) {
+            $migrationContent .= str_repeat($this->indentation, 3) . '$table->softDeletes();' . PHP_EOL;
+        }
+        $migrationContent .= str_repeat($this->indentation, 3) . '$table->timestamps();' . PHP_EOL;
+
+        $content = strtr($content, [
+            '$MIGRATION_CONTENT$' => $migrationContent
+        ]);
+
         file_put_contents("{$this->migrationPath}", $content);
 
         $this->info("Created Migration: {$this->migrationPath}");
@@ -204,7 +237,7 @@ class MakeCRUD extends Command
             '$PERMISSION_PREFIX$' => $this->permissionPrefix,
             '$TRANSLATION_PREFIX$' => $this->translationPrefix,
             '$INTERNAL_NAME$' => $this->internalName,
-            '$ENTITY_NAME$' => $this->entityName
+            '$ENTITY_NAME$' => $this->entityName,
         ];
 
         return strtr($content, $map);
