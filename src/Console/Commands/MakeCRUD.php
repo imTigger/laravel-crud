@@ -61,13 +61,15 @@ class MakeCRUD extends Command
         $this->formName = studly_case($this->nameNormalized) . 'Form';
         $this->migrationName = 'Create' . studly_case($this->namePlural) . 'Table';
         $this->tableName = snake_case($this->namePlural);
-        $this->entityName = 'backend.entity.' . snake_case($this->name);
+        $this->entityName = title_case(strtolower($this->nameNormalized));
+        $this->internalName = snake_case(strtolower($this->nameNormalized));
 
         $this->compileView($this->nameNormalized);
         $this->compileController($this->nameNormalized);
         $this->compileModel($this->nameNormalized);
         $this->compileForm($this->nameNormalized);
         $this->compileMigration($this->nameNormalized);
+        $this->addLanguage($this->nameNormalized);
 
         $this->info("Now add route to config/web.php and run 'laroute:generate'");
         $this->info("\\Imtigger\\LaravelCRUD\\CRUDController::routes('/{$this->urlName}', '\\{$this->controllerNamespace}\\{$this->controllerName}', '{$this->viewPrefix}');");
@@ -160,6 +162,16 @@ class MakeCRUD extends Command
         $this->info("Created Migration: {$this->migrationPath}");
     }
 
+    protected function addLanguage($name)
+    {
+        if (class_exists('\Barryvdh\TranslationManager\Models\Translation')) {
+            \Barryvdh\TranslationManager\Models\Translation::create(['status' => 0, 'locale' => 'en', 'group' => 'backend', 'key' => "entity.{$this->internalName}", 'value' => "{$this->entityName}"]);
+            \Barryvdh\TranslationManager\Models\Translation::create(['status' => 0, 'locale' => 'en', 'group' => 'backend', 'key' => "{$this->internalName}.label.id", 'value' => "ID"]);
+            \Barryvdh\TranslationManager\Models\Translation::create(['status' => 0, 'locale' => 'en', 'group' => 'backend', 'key' => "{$this->internalName}.label.name", 'value' => "Name"]);
+            \Barryvdh\TranslationManager\Models\Translation::create(['status' => 0, 'locale' => 'en', 'group' => 'backend', 'key' => "{$this->internalName}.label.actions", 'value' => "Actions"]);
+        }
+    }
+
     protected function getStubContent($path)
     {
         return $this->fs->get(__DIR__ . '/../../stubs/' . $path);
@@ -177,6 +189,7 @@ class MakeCRUD extends Command
             '$ROUTE_PREFIX$' => $this->routePrefix,
             '$PERMISSION_PREFIX$' => $this->permissionPrefix,
             '$TRANSLATION_PREFIX$' => $this->translationPrefix,
+            '$INTERNAL_NAME$' => $this->internalName,
             '$ENTITY_NAME$' => $this->entityName
         ];
 
