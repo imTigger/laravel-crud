@@ -14,25 +14,30 @@ use Yajra\Datatables\Facades\Datatables;
 use Rutorika\Sortable\SortableTrait;
 
 /**
- * Generic CRUD Controller with override-able options by Tiger
+ * Generic CRUD Controller with overridable options
+ * With searchable and sortable datatables index page
  *
  * Interoperable with:
- * Datatables search - https://github.com/yajra/laravel-datatables
- * row-reorder - https://github.com/DataTables/RowReorder
+ * Laravel Datatables - https://github.com/yajra/laravel-datatables
+ * Datatables - https://github.com/DataTables/DataTables
+ * Datatables row-reorder - https://github.com/DataTables/RowReorder
+ * Laravel Form Builder - https://github.com/kristijanhusak/laravel-form-builder
  * Laratrust ACL - https://github.com/santigarcor/laratrust
  * Translatable - https://github.com/dimsav/laravel-translatable
  * Sortable - https://github.com/boxfrommars/rutorika-sortable
  *
- * @property string $viewPrefix
- * @property string $routePrefix
- * @property string $permissionPrefix
- * @property string $entityName
- * @property \Eloquent $entityClass
- * @property string $formClass
- * @property bool $isCreatable
- * @property bool $isEditable
- * @property bool $isViewable
- * @property bool $isDeletable
+ * @property string $viewPrefix Prefix of blade view
+ * @property string $routePrefix Prefix of route name
+ * @property string $permissionPrefix Prefix of Laratrust permission name
+ * @property string $entityName Entity Name
+ * @property \Eloquent $entityClass Entity Class
+ * @property string $formClass Laravel Form Builder Class
+ * @property bool $isCreatable Enable create operation, default: true
+ * @property bool $isEditable Enable edit operation, default: true
+ * @property bool $isViewable Enable view operation, default: true
+ * @property bool $isDeletable Enable delete operation, default: true
+ * @property bool $isReorderable Enable reorder operation, default: false
+ * @property array $rawColumns Columns that do not enable XSS protection by Laravel Datatables (7.0+)
  */
 abstract class CRUDController extends BaseController
 {
