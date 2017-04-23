@@ -332,7 +332,7 @@ abstract class CRUDController extends BaseController
 
     /**
      * Return LaravelFormBuilder Form used in update validation
-     * Override this method to modify the validation behavior in store
+     * Override this method to modify the validation behavior in update
      *
      * @return Form
      */
