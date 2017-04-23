@@ -198,6 +198,11 @@ abstract class CRUDController extends BaseController
         return redirect()->route("$this->routePrefix.index")->with('status', trans('laravel-crud::ui.message.create_success', ['name' => trans($this->entityName)]));
     }
 
+    /**
+     * Return LaravelFormBuilder Form used in store validation
+     *
+     * @return Form
+     */
     protected function storeForm() {
         $form = $this->form($this->formClass);
 
@@ -314,6 +319,11 @@ abstract class CRUDController extends BaseController
         return redirect()->route("$this->routePrefix.index")->with('status', trans('laravel-crud::ui.message.edit_success', ['name' => trans($this->entityName)]));
     }
 
+    /**
+     * Return LaravelFormBuilder Form used in update validation
+     *
+     * @return Form
+     */
     protected function updateForm() {
         $form = $this->form($this->formClass);
 
