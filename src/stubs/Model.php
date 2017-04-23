@@ -7,7 +7,5 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 
 class $MODEL_NAME$ extends Model
 {
-    use SoftDeletes;
-
-    protected $fillable = ['name'];
+$MODEL_CONTENT$
 }
