@@ -303,7 +303,7 @@ abstract class CRUDController extends BaseController
             abort(403);
         }
 
-        $form = $this->form($this->formClass);
+        $form = $this->updateForm();
 
         if (!$form->isValid()) {
             return redirect()->back()->withErrors($form->getErrors())->withInput();
@@ -313,6 +313,13 @@ abstract class CRUDController extends BaseController
 
         return redirect()->route("$this->routePrefix.index")->with('status', trans('laravel-crud::ui.message.edit_success', ['name' => trans($this->entityName)]));
     }
+
+    protected function updateForm() {
+        $form = $this->form($this->formClass);
+
+        return $form;
+    }
+
     /**
      * Trigger when update method
      *
