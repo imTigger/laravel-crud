@@ -264,7 +264,7 @@ abstract class CRUDController extends BaseController
             abort(403);
         }
 
-        $form = $this->editForm($entity, $id);
+        $form = $this->editForm($entity);
 
         $this->data['entity'] = $entity;
         $this->data['form'] = $form;
@@ -280,10 +280,10 @@ abstract class CRUDController extends BaseController
      * @param int $id
      * @return Form
      */
-    protected function editForm($entity, $id) {
+    protected function editForm($entity) {
         $form = $this->form($this->formClass, [
             'method' => 'patch',
-            'url' => route("$this->routePrefix.update", $id),
+            'url' => route("$this->routePrefix.update", $entity->id),
             'class' => 'simple-form',
             'model' => $entity
         ]);
@@ -308,7 +308,7 @@ abstract class CRUDController extends BaseController
             abort(403);
         }
 
-        $form = $this->updateForm();
+        $form = $this->updateForm($entity);
 
         if (!$form->isValid()) {
             return redirect()->back()->withErrors($form->getErrors())->withInput();
@@ -324,7 +324,7 @@ abstract class CRUDController extends BaseController
      *
      * @return Form
      */
-    protected function updateForm() {
+    protected function updateForm($entity) {
         $form = $this->form($this->formClass);
 
         return $form;
