@@ -220,6 +220,7 @@ abstract class CRUDController extends BaseController
 
     /**
      * Trigger when store method
+     * Override this method to add additinal operations
      *
      * @return Model
      */
@@ -343,6 +344,7 @@ abstract class CRUDController extends BaseController
 
     /**
      * Trigger when update method
+     * Override this method to add additinal operations
      *
      * @param Model|Translatable $entity
      * @return Model|Translatable $entity
@@ -394,9 +396,19 @@ abstract class CRUDController extends BaseController
             abort(403);
         }
 
-        $entity->delete();
+        $this->destroySave($entity);
 
         return redirect()->route("$this->routePrefix.index")->with('status', trans('laravel-crud::ui.message.delete_success', ['name' => trans($this->entityName)]));
+    }
+
+    /**
+     * Trigger when destroy method
+     * Override this method to add additinal operations
+     *
+     * @param Model|Translatable $entity
+     */
+    protected function destroySave($entity) {
+        $entity->delete();
     }
 
     /**
