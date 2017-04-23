@@ -17,7 +17,8 @@ use Rutorika\Sortable\SortableTrait;
  * Generic CRUD Controller with override-able options by Tiger
  *
  * Interoperable with:
- * Datatables search, row-reorder - https://github.com/yajra/laravel-datatables
+ * Datatables search - https://github.com/yajra/laravel-datatables
+ * row-reorder - https://github.com/DataTables/RowReorder
  * Laratrust ACL - https://github.com/santigarcor/laratrust
  * Translatable - https://github.com/dimsav/laravel-translatable
  * Sortable - https://github.com/boxfrommars/rutorika-sortable
@@ -121,6 +122,7 @@ abstract class CRUDController extends BaseController
 
     /**
      * Return LaravelFormBuilder Form used in show
+     * Override this method to modify the form displayed in show
      *
      * @param Model $entity
      * @param int $id
@@ -159,6 +161,7 @@ abstract class CRUDController extends BaseController
 
     /**
      * Return LaravelFormBuilder Form used in create
+     * Override this method to modify the form displayed in create
      *
      * @return Form
      */
@@ -200,6 +203,7 @@ abstract class CRUDController extends BaseController
 
     /**
      * Return LaravelFormBuilder Form used in store validation
+     * Override this method to modify the validation behavior in store
      *
      * @return Form
      */
@@ -275,6 +279,7 @@ abstract class CRUDController extends BaseController
 
     /**
      * Return LaravelFormBuilder Form used in edit
+     * Override this method to modify the form displayed in store
      *
      * @param Model $entity
      * @param int $id
@@ -321,6 +326,7 @@ abstract class CRUDController extends BaseController
 
     /**
      * Return LaravelFormBuilder Form used in update validation
+     * Override this method to modify the validation behavior in store
      *
      * @return Form
      */
@@ -389,7 +395,7 @@ abstract class CRUDController extends BaseController
     }
 
     /**
-     * HTTP ajax.list query
+     * HTTP ajax.list query builder
      *
      * @return \Eloquent
      */
@@ -515,6 +521,7 @@ abstract class CRUDController extends BaseController
     
     /**
      * Additional check after return if user have permission
+     * Override this method to add checkings
      *
      * @param string $action
      * @param Model $entity
