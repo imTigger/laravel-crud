@@ -213,7 +213,9 @@ abstract class CRUDController extends BaseController
      * @return Form
      */
     protected function storeForm() {
-        $form = $this->form($this->formClass);
+        $form = $this->form($this->formClass, [
+            'method' => 'post'
+        ]);
 
         return $form;
     }
@@ -337,7 +339,10 @@ abstract class CRUDController extends BaseController
      * @return Form
      */
     protected function updateForm($entity) {
-        $form = $this->form($this->formClass);
+        $form = $this->form($this->formClass, [
+            'method' => 'patch',
+            'model' => $entity
+        ]);
 
         return $form;
     }
