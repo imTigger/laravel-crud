@@ -421,7 +421,7 @@ abstract class CRUDController extends BaseController
      *
      * @return \Eloquent
      */
-    public function ajaxListQuery() {
+    protected function ajaxListQuery() {
         if (!property_exists($this->entityClass, 'translatedAttributes')) {
             $query = ($this->entityClass)::query();
 
@@ -472,7 +472,7 @@ abstract class CRUDController extends BaseController
      * @param $items
      * @return \Yajra\Datatables\Engines\CollectionEngine
      */
-    public function ajaxListDataTable($items) {
+    protected function ajaxListDataTable($items) {
         $datatable = Datatables::of($items)
             ->addColumn('actions', function ($item) {
                 return $this->ajaxListActions($item);
