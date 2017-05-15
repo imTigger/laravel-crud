@@ -9,12 +9,12 @@
 @section('content')
     @include('admin.components.message')
 
-    <table class="table table-striped table-bordered table-hover" id="dataTables" style="width: 100%">
+    <table class="table table-striped table-bordered table-hover" id="dataTables" style="width: 100%" data-ajax="{{ route("{$routePrefix}.ajax.list") }}" data-processing="true" data-server-side="true">
         <thead>
         <tr>
-            <th data-datatable-id="id" width="50">{{ trans('$TRANSLATION_PREFIX$.id') }}</th>
-            <th data-datatable-id="name">{{ trans('$TRANSLATION_PREFIX$.name') }}</th>
-            <th data-datatable-id="actions" data-datatable-searchable="false" data-datatable-sortable="false" data-datatable-class="dt-center" width="180">{{ trans('$TRANSLATION_PREFIX$.actions') }}</th>
+            <th data-data="id" width="50">{{ trans('$TRANSLATION_PREFIX$.id') }}</th>
+            <th data-data="name">{{ trans('$TRANSLATION_PREFIX$.name') }}</th>
+            <th data-data="actions" data-datatable-searchable="false" data-datatable-sortable="false" data-datatable-class="dt-center" width="180">{{ trans('$TRANSLATION_PREFIX$.actions') }}</th>
         </tr>
         </thead>
         <tbody>
@@ -25,12 +25,7 @@
 @push('js')
 <script>
     $().ready(function () {
-        $('#dataTables').datatableify({
-            ajaxLoadUrl: laroute.route('{!! "{$routePrefix}.ajax.list" !!}'),
-            language: {
-                "url": laroute.route('admin.datatables.language')
-            }
-        });
+        $('#dataTables').dataTable();
     });
 </script>
 @endpush
