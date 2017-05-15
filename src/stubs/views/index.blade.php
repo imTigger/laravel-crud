@@ -9,12 +9,12 @@
 @section('content')
     @include('admin.components.message')
 
-    <table class="table table-striped table-bordered table-hover" id="dataTables" style="width: 100%" data-ajax="{{ route("{$routePrefix}.ajax.list") }}" data-processing="true" data-server-side="true">
+    <table class="table table-striped table-bordered table-hover search-header" id="dataTables" style="width: 100%" data-ajax="{{ route("{$routePrefix}.ajax.list") }}" data-processing="true" data-server-side="true">
         <thead>
         <tr>
             <th data-data="id" width="50">{{ trans('$TRANSLATION_PREFIX$.id') }}</th>
             <th data-data="name">{{ trans('$TRANSLATION_PREFIX$.name') }}</th>
-            <th data-data="actions" data-datatable-searchable="false" data-datatable-sortable="false" data-datatable-class="dt-center" width="180">{{ trans('$TRANSLATION_PREFIX$.actions') }}</th>
+            <th data-data="actions" data-searchable="false" data-sortable="false" data-class-name="text-center" width="180">{{ trans('$TRANSLATION_PREFIX$.actions') }}</th>
         </tr>
         </thead>
         <tbody>
