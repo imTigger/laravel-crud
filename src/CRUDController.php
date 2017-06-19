@@ -239,7 +239,7 @@ abstract class CRUDController extends BaseController
         }
 
         foreach ($fillables As $fillable) {
-            if (Input::get($fillable) != null) {
+            if (Input::exists($fillable)) {
                 $entity->$fillable = Input::get($fillable);
             }
         }
@@ -364,7 +364,7 @@ abstract class CRUDController extends BaseController
         }
 
         foreach ($fillables As $fillable) {
-            if (Input::get($fillable) != null) {
+            if (Input::exists($fillable)) {
                 $entity->$fillable = Input::get($fillable);
             }
         }
