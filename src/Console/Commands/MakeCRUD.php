@@ -131,7 +131,7 @@ class MakeCRUD extends Command
         $viewDirectoryPath = $this->getViewPath($name);
         \File::makeDirectory($viewDirectoryPath, 0755, true, true);
 
-        foreach(['layout.blade.php', 'form.blade.php', 'index.blade.php', 'create.blade.php', 'edit.blade.php', 'show.blade.php'] As $filename) {
+        foreach(['layout.blade.php', 'form.blade.php', 'index.blade.php', 'create.blade.php', 'edit.blade.php', 'show.blade.php', 'delete.blade.php'] As $filename) {
             $content = $this->getStubContent("views/{$filename}");
             $content = $this->replaceTokens($content);
             file_put_contents("{$viewDirectoryPath}/{$filename}", $content);
