@@ -84,9 +84,10 @@ abstract class CRUDController extends BaseController
      */
     public static function routes($prefix, $controller, $as) {
         $prefix_of_prefix = substr(strrev(strstr(strrev($as), '.', false)), 0, -1);
-        \Route::resource("{$prefix}", "{$controller}", ['as' => $prefix_of_prefix]);
+        \Route::get("{$prefix}/delete/{id}", ['as' => "{$as}.delete", 'uses' => "{$controller}@delete", 'laroute' => true]);
         \Route::get("{$prefix}/ajax/list", ['as' => "{$as}.ajax.list", 'uses' => "{$controller}@ajaxList", 'laroute' => true]);
         \Route::post("{$prefix}/ajax/reorder", ['as' => "$as.ajax.reorder", 'uses' => "{$controller}@ajaxReorder", 'laroute' => true]);
+        \Route::resource("{$prefix}", "{$controller}", ['as' => $prefix_of_prefix]);
     }
 
     /**
@@ -110,7 +111,7 @@ abstract class CRUDController extends BaseController
         if (!$this->isViewable) {
             abort(404);
         }
-        
+
         if (!$this->havePermission('read', $entity)) {
             abort(403);
         }
@@ -151,7 +152,7 @@ abstract class CRUDController extends BaseController
         if (!$this->isCreatable) {
             abort(404);
         }
-        
+
         if (!$this->havePermission('write')) {
             abort(403);
         }
@@ -190,7 +191,7 @@ abstract class CRUDController extends BaseController
         if (!$this->isCreatable) {
             abort(404);
         }
-        
+
         if (!$this->havePermission('write')) {
             abort(403);
         }
@@ -271,7 +272,7 @@ abstract class CRUDController extends BaseController
         if (!$this->isEditable) {
             abort(404);
         }
-        
+
         if (!$this->havePermission('write', $entity)) {
             abort(403);
         }
@@ -316,7 +317,7 @@ abstract class CRUDController extends BaseController
         if (!$this->isEditable) {
             abort(404);
         }
-        
+
         if (!$this->havePermission('write', $entity)) {
             abort(403);
         }
@@ -385,6 +386,50 @@ abstract class CRUDController extends BaseController
     }
 
     /**
+     * HTTP delete handler
+     *
+     * @param int $id
+     * @return mixed
+     */
+    public function delete($id) {
+        $entity = ($this->entityClass)::findOrFail($id);
+
+        if (!$this->isViewable) {
+            abort(404);
+        }
+
+        if (!$this->havePermission('read', $entity)) {
+            abort(403);
+        }
+
+        $form = $this->deleteForm($entity, $id);
+        $form->disableFields();
+
+        $this->data['entity'] = $entity;
+        $this->data['form'] = $form;
+        $this->data['action'] = 'show';
+
+        return view("{$this->viewPrefix}.delete", $this->data);
+    }
+
+    /**
+     * Return LaravelFormBuilder Form used in delete
+     * Override this method to modify the form displayed in delete
+     *
+     * @param Model $entity
+     * @param int $id
+     * @return \Kris\LaravelFormBuilder\Form
+     */
+    protected function deleteForm($entity, $id) {
+        return $this->form($this->formClass, [
+            'method' => 'delete',
+            'url' => route("$this->routePrefix.destroy", $id),
+            'class' => 'simple-form',
+            'model' => $entity
+        ]);
+    }
+
+    /**
      * HTTP destroy handler
      *
      * @param int $id
@@ -396,7 +441,7 @@ abstract class CRUDController extends BaseController
         if (!$this->isDeletable) {
             abort(404);
         }
-        
+
         if (!$this->havePermission('write', $entity)) {
             abort(403);
         }
@@ -463,7 +508,8 @@ abstract class CRUDController extends BaseController
     {
         return
             ($this->isViewable ? '<a href="' . route("{$this->routePrefix}.show", [$item->id]) .'" class="btn btn-xs btn-success"><i class="glyphicon glyphicon-eye-open"></i> ' . trans('laravel-crud::ui.button.view') . '</a> ' : '') .
-            ($this->isEditable ? '<a href="' . route("{$this->routePrefix}.edit", [$item->id]) .'" class="btn btn-xs btn-primary"><i class="glyphicon glyphicon-edit"></i> ' . trans('laravel-crud::ui.button.edit') . '</a> ' : '');
+            ($this->isEditable ? '<a href="' . route("{$this->routePrefix}.edit", [$item->id]) .'" class="btn btn-xs btn-primary"><i class="glyphicon glyphicon-edit"></i> ' . trans('laravel-crud::ui.button.edit') . '</a> ' : '') .
+            ($this->isDeletable ? '<a href="' . route("{$this->routePrefix}.delete", [$item->id]) .'" class="btn btn-xs btn-danger"><i class="glyphicon glyphicon-trash"></i> ' . trans('laravel-crud::ui.button.delete') . '</a> ' : '');
     }
 
     /**
@@ -477,7 +523,7 @@ abstract class CRUDController extends BaseController
             ->addColumn('actions', function ($item) {
                 return $this->ajaxListActions($item);
             });
-            
+
         if (!empty($this->rawColumns) && method_exists($datatable, 'rawColumns')) {
             $datatable->rawColumns($this->rawColumns);
         }
@@ -540,7 +586,7 @@ abstract class CRUDController extends BaseController
 
         return ['status' => 0];
     }
-    
+
     /**
      * Additional check after return if user have permission
      * Override this method to add checkings
