@@ -10,7 +10,7 @@ use Illuminate\Support\Facades\Request;
 use Kris\LaravelFormBuilder\Form;
 use Kris\LaravelFormBuilder\FormBuilderTrait;
 use Dimsav\Translatable\Translatable;
-use Yajra\Datatables\Facades\Datatables;
+use Yajra\DataTables\Facades\DataTables;
 use Rutorika\Sortable\SortableTrait;
 
 /**
@@ -18,9 +18,9 @@ use Rutorika\Sortable\SortableTrait;
  * With searchable and sortable datatables index page
  *
  * Interoperable with:
- * Laravel Datatables - https://github.com/yajra/laravel-datatables
- * Datatables - https://github.com/DataTables/DataTables
- * Datatables row-reorder - https://github.com/DataTables/RowReorder
+ * Laravel DataTables - https://github.com/yajra/laravel-datatables
+ * DataTables - https://github.com/DataTables/DataTables
+ * DataTables row-reorder - https://github.com/DataTables/RowReorder
  * Laravel Form Builder - https://github.com/kristijanhusak/laravel-form-builder
  * Laratrust ACL - https://github.com/santigarcor/laratrust
  * Translatable - https://github.com/dimsav/laravel-translatable
@@ -37,7 +37,7 @@ use Rutorika\Sortable\SortableTrait;
  * @property bool $isViewable Enable view operation, default: true
  * @property bool $isDeletable Enable delete operation, default: true
  * @property bool $isReorderable Enable reorder operation, default: false
- * @property array $rawColumns Columns that do not enable XSS protection by Laravel Datatables (7.0+)
+ * @property array $rawColumns Columns that do not enable XSS protection by Laravel DataTables (7.0+)
  */
 abstract class CRUDController extends BaseController
 {
@@ -516,10 +516,10 @@ abstract class CRUDController extends BaseController
      * Construct datatable object
      *
      * @param $items
-     * @return \Yajra\Datatables\Engines\CollectionEngine
+     * @return \Yajra\DataTables\Engines\CollectionEngine
      */
     protected function ajaxListDataTable($items) {
-        $datatable = Datatables::of($items)
+        $datatable = DataTables::of($items)
             ->addColumn('actions', function ($item) {
                 return $this->ajaxListActions($item);
             });
