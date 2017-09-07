@@ -49,6 +49,7 @@ abstract class CRUDController extends BaseController
     protected $isDeletable = false;
     protected $isReorderable = false;
     protected $rawColumns = ['actions'];
+    protected $with = [];
     protected $data = [];
 
     public function __construct() {
@@ -469,7 +470,6 @@ abstract class CRUDController extends BaseController
     protected function ajaxListQuery() {
         if (!property_exists($this->entityClass, 'translatedAttributes')) {
             $query = ($this->entityClass)::query();
-
         } else {
             /** @var Model|Translatable $entity */
             $entity = new $this->entityClass;
@@ -491,8 +491,16 @@ abstract class CRUDController extends BaseController
                 ->where("{$foreignTable}.locale", Config::get('translatable.locale'));
         }
 
+        // Add orderBy
         if (in_array('Rutorika\Sortable\SortableTrait', class_uses($this->entityClass))) {
             $query->orderBy('position');
+        }
+
+        // Add 'with' relations
+        if (is_array($this->with) && !empty($this->with)) {
+            foreach ($this->with as $relation) {
+                $query->with($relation);
+            }
         }
 
         return $query;
@@ -524,6 +532,7 @@ abstract class CRUDController extends BaseController
                 return $this->ajaxListActions($item);
             });
 
+        // Set rawColumns
         if (!empty($this->rawColumns) && method_exists($datatable, 'rawColumns')) {
             $datatable->rawColumns($this->rawColumns);
         }
