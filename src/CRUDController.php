@@ -45,7 +45,7 @@ abstract class CRUDController extends BaseController
     protected $isCreatable = true;
     protected $isEditable = true;
     protected $isViewable = true;
-    protected $isDeletable = true;
+    protected $isDeletable = false;
     protected $isReorderable = false;
     protected $rawColumns = ['actions'];
     protected $data = [];
