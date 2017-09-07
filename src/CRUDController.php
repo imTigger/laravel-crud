@@ -6,7 +6,6 @@ use Illuminate\Routing\Controller as BaseController;
 use Illuminate\Support\Facades\Config;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Input;
-use Illuminate\Support\Facades\Request;
 use Kris\LaravelFormBuilder\Form;
 use Kris\LaravelFormBuilder\FormBuilderTrait;
 use Dimsav\Translatable\Translatable;
@@ -516,7 +515,7 @@ abstract class CRUDController extends BaseController
      * Construct datatable object
      *
      * @param $items
-     * @return \Yajra\DataTables\Engines\CollectionEngine
+     * @return \Yajra\DataTables\DataTableAbstract
      */
     protected function ajaxListDataTable($items) {
         $datatable = DataTables::of($items)
