@@ -21,6 +21,14 @@
             "Imtigger\\LaravelCRUD\\": "src"
         }
     },
+    "extra": {
+        "laravel": {
+            "providers": [
+                "Imtigger\\LaravelCRUD\\LaravelCRUDServiceProvider",
+                "Imtigger\\LaravelCRUD\\LaravelCRUDGeneratorServiceProvider"
+            ]
+        }
+    },
     "minimum-stability": "dev",
     "prefer-stable": true
 }
