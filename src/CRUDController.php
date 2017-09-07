@@ -72,7 +72,7 @@ abstract class CRUDController extends BaseController
         $this->data['isReorderable'] = $this->isReorderable;
 
         $this->middleware("permission:{$this->permissionPrefix}.read");
-        $this->middleware("permission:{$this->permissionPrefix}.write")->only(['create', 'store', 'edit', 'update', 'destroy']);
+        $this->middleware("permission:{$this->permissionPrefix}.write")->only(['create', 'store', 'edit', 'update', 'delete', 'destroy']);
     }
 
     /**
@@ -394,11 +394,11 @@ abstract class CRUDController extends BaseController
     public function delete($id) {
         $entity = ($this->entityClass)::findOrFail($id);
 
-        if (!$this->isViewable) {
+        if (!$this->isDeletable) {
             abort(404);
         }
 
-        if (!$this->havePermission('read', $entity)) {
+        if (!$this->havePermission('write', $entity)) {
             abort(403);
         }
 
