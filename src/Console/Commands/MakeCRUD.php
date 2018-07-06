@@ -161,7 +161,7 @@ class MakeCRUD extends Command
             $modelContent .= PHP_EOL;
         }
 
-        $modelContent .= $this->indentation . 'protected $fillable = [\'name\'];';
+        $modelContent .= $this->indentation . 'protected $guarded = [];';
 
         $content = strtr($content, [
             '$MODEL_CONTENT$' => $modelContent
