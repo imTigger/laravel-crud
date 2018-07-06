@@ -18,10 +18,9 @@ class MakeCRUD extends Command
     make:crud {name} 
     {--no-model : Generates no model} 
     {--no-view : Generates no view} 
-    {--no-controller : Generates no controller} 
+    {--no-controller : Generates no controller}
     {--no-form : Generates no form} 
-    {--no-migration : Generates no migration} 
-    {--no-language : Generates no language}
+    {--no-migration : Generates no migration}
     {--no-soft-delete : No soft delete}
     {--no-ui : Shortcut for --no-view, --no-controller and --no-form}
     ';
@@ -85,7 +84,6 @@ class MakeCRUD extends Command
         if (!$this->option('no-model')) $this->compileModel($this->nameNormalized);
         if (!$this->option('no-form') && !$this->option('no-ui')) $this->compileForm($this->nameNormalized);
         if (!$this->option('no-migration')) $this->compileMigration($this->nameNormalized);
-        if (!$this->option('no-language')) $this->addLanguage($this->nameNormalized);
 
         $this->line("");
         $this->info("CRUD Generated successfully.");
@@ -207,16 +205,6 @@ class MakeCRUD extends Command
         file_put_contents("{$this->migrationPath}", $content);
 
         $this->info("Created Migration: {$this->migrationPath}");
-    }
-
-    protected function addLanguage($name)
-    {
-        if (class_exists('\Barryvdh\TranslationManager\Models\Translation')) {
-            \Barryvdh\TranslationManager\Models\Translation::create(['status' => 0, 'locale' => 'en', 'group' => 'backend', 'key' => "entity.{$this->internalName}", 'value' => "{$this->entityName}"]);
-            \Barryvdh\TranslationManager\Models\Translation::create(['status' => 0, 'locale' => 'en', 'group' => 'backend', 'key' => "{$this->internalName}.label.id", 'value' => "ID"]);
-            \Barryvdh\TranslationManager\Models\Translation::create(['status' => 0, 'locale' => 'en', 'group' => 'backend', 'key' => "{$this->internalName}.label.name", 'value' => "Name"]);
-            \Barryvdh\TranslationManager\Models\Translation::create(['status' => 0, 'locale' => 'en', 'group' => 'backend', 'key' => "{$this->internalName}.label.actions", 'value' => "Actions"]);
-        }
     }
 
     protected function getStubContent($path)
