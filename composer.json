@@ -1,7 +1,7 @@
 {
     "name": "imtigger/laravel-crud",
     "description": "Laravel CRUD Controller",
-    "license": "property",
+    "license": "mit",
     "authors": [
         {
             "name": "Tiger",
