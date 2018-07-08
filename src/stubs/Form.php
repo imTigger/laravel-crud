@@ -2,7 +2,6 @@
 
 namespace App\Forms;
 
-use Config;
 use Kris\LaravelFormBuilder\Form;
 
 class $FORM_NAME$ extends Form
