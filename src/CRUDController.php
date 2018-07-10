@@ -136,7 +136,7 @@ abstract class CRUDController extends BaseController
      */
     protected function showForm($entity, $id) {
         return $this->form($this->formClass, [
-            'method' => 'post',
+            'method' => 'get',
             'url' => route("$this->routePrefix.show", $id),
             'model' => $entity
         ]);
@@ -295,7 +295,7 @@ abstract class CRUDController extends BaseController
     protected function editForm($entity) {
         $form = $this->form($this->formClass, [
             'method' => 'patch',
-            'url' => route("$this->routePrefix.update", $entity->id)
+            'url' => route("$this->routePrefix.update", $entity->id),
             'model' => $entity
         ]);
 
