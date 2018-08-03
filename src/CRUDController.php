@@ -87,6 +87,10 @@ abstract class CRUDController extends BaseController
      * @return \Illuminate\Http\JsonResponse
      */
     public function index() {
+        if (!$this->havePermission(self::ACTION_READ, null)) {
+            abort(403);
+        }
+
         return view("{$this->viewPrefix}.index", $this->data);
     }
 
@@ -474,6 +478,10 @@ abstract class CRUDController extends BaseController
      * @return \Illuminate\Http\JsonResponse
      */
     public function ajaxList() {
+        if (!$this->havePermission(self::ACTION_READ, null)) {
+            abort(403);
+        }
+
         $items = $this->ajaxListQuery();
 
         return $this->ajaxListDataTable($items)->make(true);
