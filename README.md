@@ -9,10 +9,10 @@ This package depend on the following packages to generate easy-to-use yet custom
 
 - Laravel DataTables - https://github.com/yajra/laravel-datatables
 - Laravel Form Builder - https://github.com/kristijanhusak/laravel-form-builder
-- Laratrust ACL - https://github.com/santigarcor/laratrust
 
 Optional Features:
 
+ - Laratrust ACL - https://github.com/santigarcor/laratrust
  - Translatable - https://github.com/dimsav/laravel-translatable
  - Sortable - https://github.com/boxfrommars/rutorika-sortable
 
