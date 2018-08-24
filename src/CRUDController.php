@@ -52,15 +52,8 @@ abstract class CRUDController extends BaseController
         if (!property_exists($this, 'entityName')) throw new \Exception("entityName not defined");
         if (!property_exists($this, 'entityClass')) throw new \Exception("entityClass not defined");
         if (($this->isCreatable || $this->isEditable || $this->isViewable || $this->isDeletable) && !property_exists($this, 'formClass')) throw new \Exception("formClass not defined");
-
-        $this->data['viewPrefix'] = $this->viewPrefix;
-        $this->data['routePrefix'] = $this->routePrefix;
-        $this->data['entityName'] = $this->entityName;
-
-        $this->data['isCreatable'] = $this->isCreatable;
-        $this->data['isEditable'] = $this->isEditable;
-        $this->data['isViewable'] = $this->isViewable;
-        $this->data['isDeletable'] = $this->isDeletable;
+        
+        $this->shareViewData();
     }
 
     /**
@@ -76,6 +69,20 @@ abstract class CRUDController extends BaseController
         \Route::get("{$prefix}/ajax/list", ['as' => "{$as}.ajax.list", 'uses' => "{$controller}@ajaxList", 'laroute' => true]);
         \Route::post("{$prefix}/ajax/reorder", ['as' => "$as.ajax.reorder", 'uses' => "{$controller}@ajaxReorder", 'laroute' => true]);
         \Route::resource("{$prefix}", "{$controller}", ['as' => $prefix_of_prefix]);
+    }
+    
+    /**
+     * Share data with views
+     */
+    public function shareViewData() {
+        $this->data['viewPrefix'] = $this->viewPrefix;
+        $this->data['routePrefix'] = $this->routePrefix;
+        $this->data['entityName'] = $this->entityName;
+
+        $this->data['isCreatable'] = $this->isCreatable;
+        $this->data['isEditable'] = $this->isEditable;
+        $this->data['isViewable'] = $this->isViewable;
+        $this->data['isDeletable'] = $this->isDeletable;
     }
 
     /**
