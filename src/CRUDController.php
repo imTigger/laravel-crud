@@ -28,8 +28,7 @@ use Yajra\DataTables\Facades\DataTables;
  * @property bool $isCreatable Enable create operation, default: true
  * @property bool $isEditable Enable edit operation, default: true
  * @property bool $isViewable Enable view operation, default: true
- * @property bool $isDeletable Enable delete operation, default: true
- * @property bool $isReorderable Enable reorder operation, default: false
+ * @property bool $isDeletable Enable delete operation, default: false
  * @property array $rawColumns Columns that do not enable XSS protection by Laravel DataTables (7.0+)
  */
 abstract class CRUDController extends BaseController
@@ -43,7 +42,6 @@ abstract class CRUDController extends BaseController
     protected $isEditable = true;
     protected $isViewable = true;
     protected $isDeletable = false;
-    protected $isReorderable = false;
     protected $rawColumns = ['actions'];
     protected $with = [];
     protected $data = [];
@@ -63,7 +61,6 @@ abstract class CRUDController extends BaseController
         $this->data['isEditable'] = $this->isEditable;
         $this->data['isViewable'] = $this->isViewable;
         $this->data['isDeletable'] = $this->isDeletable;
-        $this->data['isReorderable'] = $this->isReorderable;
     }
 
     /**
