@@ -23,7 +23,7 @@ Optional Features:
 
 # Usage
 
-Artisan CRUD generator command
+CRUD generator
 
 ```
 php artisan make:crud --help
@@ -41,6 +41,25 @@ Options:
       --no-migration    Generates no migration
       --no-soft-delete  No soft delete
       --no-ui           Shortcut for --no-view, --no-controller and --no-form
+```
+
+CRUD index view Datatable header generator
+
+```
+php artisan make:crud:header --help
+Usage:
+  make:crud:header <table>
+
+Arguments:
+  table
+```
+
+Translation string generator
+
+```
+php artisan make:crud:trans --help
+Usage:
+  make:crud:trans
 ```
 
 # CRUDController 
