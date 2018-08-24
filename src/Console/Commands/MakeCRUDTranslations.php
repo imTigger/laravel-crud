@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Console\Commands;
+namespace Imtigger\LaravelCRUD\Console\Commands;
 
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\DB;
