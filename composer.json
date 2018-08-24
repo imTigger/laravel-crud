@@ -12,11 +12,9 @@
         "php": ">=7.0.0",
         "laravel/framework": "^5.5",
         "yajra/laravel-datatables-oracle": ">=8.0",
-        "kris/laravel-form-builder": "^1.7",
-        "rutorika/sortable": "^4.0",
-        "dimsav/laravel-translatable": ">=8.0"
+        "kris/laravel-form-builder": "^1.7"
     },
-        "autoload": {
+    "autoload": {
         "psr-4": {
             "Imtigger\\LaravelCRUD\\": "src"
         }

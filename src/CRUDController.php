@@ -10,24 +10,18 @@ use Kris\LaravelFormBuilder\Form;
 use Kris\LaravelFormBuilder\FormBuilderTrait;
 use Dimsav\Translatable\Translatable;
 use Yajra\DataTables\Facades\DataTables;
-use Rutorika\Sortable\SortableTrait;
 
 /**
  * Generic CRUD Controller with overridable options
- * With searchable and sortable datatables index page
+ * With searchable datatables index page
  *
  * Interoperable with:
  * Laravel DataTables - https://github.com/yajra/laravel-datatables
  * DataTables - https://github.com/DataTables/DataTables
- * DataTables row-reorder - https://github.com/DataTables/RowReorder
  * Laravel Form Builder - https://github.com/kristijanhusak/laravel-form-builder
- * Laratrust ACL - https://github.com/santigarcor/laratrust
- * Translatable - https://github.com/dimsav/laravel-translatable
- * Sortable - https://github.com/boxfrommars/rutorika-sortable
  *
  * @property string $viewPrefix Prefix of blade view
  * @property string $routePrefix Prefix of route name
- * @property string $permissionPrefix Prefix of Laratrust permission name
  * @property string $entityName Entity Name
  * @property \Eloquent $entityClass Entity Class
  * @property string $formClass Laravel Form Builder Class
@@ -42,6 +36,9 @@ abstract class CRUDController extends BaseController
 {
     use FormBuilderTrait;
 
+    const ACTION_READ = 'read';
+    const ACTION_WRITE = 'write';
+
     protected $isCreatable = true;
     protected $isEditable = true;
     protected $isViewable = true;
@@ -54,15 +51,12 @@ abstract class CRUDController extends BaseController
     public function __construct() {
         if (!property_exists($this, 'viewPrefix')) throw new \Exception("viewPrefix not defined");
         if (!property_exists($this, 'routePrefix')) throw new \Exception("entityClass not defined");
-        if (!property_exists($this, 'permissionPrefix')) throw new \Exception("permissionPrefix not defined");
         if (!property_exists($this, 'entityName')) throw new \Exception("entityName not defined");
         if (!property_exists($this, 'entityClass')) throw new \Exception("entityClass not defined");
         if (($this->isCreatable || $this->isEditable || $this->isViewable || $this->isDeletable) && !property_exists($this, 'formClass')) throw new \Exception("formClass not defined");
-        if ($this->isReorderable && !in_array('Rutorika\Sortable\SortableTrait', class_uses($this->entityClass))) throw new \Exception("{$this->entityClass} must use SortableTrait trait when isReorderable = true");
 
         $this->data['viewPrefix'] = $this->viewPrefix;
         $this->data['routePrefix'] = $this->routePrefix;
-        $this->data['permissionPrefix'] = $this->permissionPrefix;
         $this->data['entityName'] = $this->entityName;
 
         $this->data['isCreatable'] = $this->isCreatable;
@@ -70,9 +64,6 @@ abstract class CRUDController extends BaseController
         $this->data['isViewable'] = $this->isViewable;
         $this->data['isDeletable'] = $this->isDeletable;
         $this->data['isReorderable'] = $this->isReorderable;
-
-        $this->middleware("permission:{$this->permissionPrefix}.read");
-        $this->middleware("permission:{$this->permissionPrefix}.write")->only(['create', 'store', 'edit', 'update', 'delete', 'destroy']);
     }
 
     /**
@@ -96,6 +87,10 @@ abstract class CRUDController extends BaseController
      * @return \Illuminate\Http\JsonResponse
      */
     public function index() {
+        if (!$this->havePermission(self::ACTION_READ, null)) {
+            abort(403);
+        }
+
         return view("{$this->viewPrefix}.index", $this->data);
     }
 
@@ -112,7 +107,7 @@ abstract class CRUDController extends BaseController
             abort(404);
         }
 
-        if (!$this->havePermission('read', $entity)) {
+        if (!$this->havePermission(self::ACTION_READ, $entity)) {
             abort(403);
         }
 
@@ -136,9 +131,8 @@ abstract class CRUDController extends BaseController
      */
     protected function showForm($entity, $id) {
         return $this->form($this->formClass, [
-            'method' => 'post',
+            'method' => 'get',
             'url' => route("$this->routePrefix.show", $id),
-            'class' => 'simple-form',
             'model' => $entity
         ]);
     }
@@ -153,7 +147,7 @@ abstract class CRUDController extends BaseController
             abort(404);
         }
 
-        if (!$this->havePermission('write')) {
+        if (!$this->havePermission(self::ACTION_WRITE)) {
             abort(403);
         }
 
@@ -174,8 +168,7 @@ abstract class CRUDController extends BaseController
     protected function createForm() {
         $form = $this->form($this->formClass, [
             'method' => 'post',
-            'url' => route("$this->routePrefix.store"),
-            'class' => 'simple-form'
+            'url' => route("$this->routePrefix.store")
         ]);
 
         return $form;
@@ -192,7 +185,7 @@ abstract class CRUDController extends BaseController
             abort(404);
         }
 
-        if (!$this->havePermission('write')) {
+        if (!$this->havePermission(self::ACTION_WRITE)) {
             abort(403);
         }
 
@@ -228,30 +221,14 @@ abstract class CRUDController extends BaseController
      * @return Model
      */
     protected function storeSave() {
-        /** @var Model|Translatable $entity */
+        /** @var Model $entity */
         $entity = new $this->entityClass;
 
         $fillables = collect($entity->getFillable());
 
-        // Fill non-translated attributes
-        if (property_exists($this->entityClass, 'translatedAttributes')) {
-            $translatedFillables = collect($entity->translatedAttributes);
-            $fillables = $fillables->diff($translatedFillables);
-        }
-
         foreach ($fillables As $fillable) {
             if (Input::exists($fillable)) {
                 $entity->$fillable = Input::get($fillable);
-            }
-        }
-
-        // Fill translated attributes
-        if (property_exists($this->entityClass, 'translatedAttributes')) {
-            foreach ($entity->translatedAttributes As $translatedAttribute) {
-                $locales = Config::get('translatable.locales');
-                foreach ($locales As $locale) {
-                    $entity->translateOrNew($locale)->$translatedAttribute = Input::get("{$translatedAttribute}.{$locale}");
-                }
             }
         }
 
@@ -273,7 +250,7 @@ abstract class CRUDController extends BaseController
             abort(404);
         }
 
-        if (!$this->havePermission('write', $entity)) {
+        if (!$this->havePermission(self::ACTION_WRITE, $entity)) {
             abort(403);
         }
 
@@ -298,7 +275,6 @@ abstract class CRUDController extends BaseController
         $form = $this->form($this->formClass, [
             'method' => 'patch',
             'url' => route("$this->routePrefix.update", $entity->id),
-            'class' => 'simple-form',
             'model' => $entity
         ]);
 
@@ -318,7 +294,7 @@ abstract class CRUDController extends BaseController
             abort(404);
         }
 
-        if (!$this->havePermission('write', $entity)) {
+        if (!$this->havePermission(self::ACTION_WRITE, $entity)) {
             abort(403);
         }
 
@@ -352,31 +328,15 @@ abstract class CRUDController extends BaseController
      * Trigger when update method
      * Override this method to add additinal operations
      *
-     * @param Model|Translatable $entity
-     * @return Model|Translatable $entity
+     * @param Model $entity
+     * @return Model $entity
      */
     protected function updateSave($entity) {
         $fillables = collect($entity->getFillable());
 
-        // Fill non-translated attributes
-        if (property_exists($entity, 'translatedAttributes')) {
-            $translatedFillables = collect($entity->translatedAttributes);
-            $fillables = $fillables->diff($translatedFillables);
-        }
-
         foreach ($fillables As $fillable) {
             if (Input::exists($fillable)) {
                 $entity->$fillable = Input::get($fillable);
-            }
-        }
-
-        // Fill translated attributes
-        if (property_exists($entity, 'translatedAttributes')) {
-            foreach ($entity->translatedAttributes As $translatedAttribute) {
-                $locales = Config::get('translatable.locales');
-                foreach ($locales As $locale) {
-                    $entity->translateOrNew($locale)->$translatedAttribute = Input::get("{$translatedAttribute}.{$locale}");
-                }
             }
         }
 
@@ -398,7 +358,7 @@ abstract class CRUDController extends BaseController
             abort(404);
         }
 
-        if (!$this->havePermission('write', $entity)) {
+        if (!$this->havePermission(self::ACTION_WRITE, $entity)) {
             abort(403);
         }
 
@@ -424,7 +384,6 @@ abstract class CRUDController extends BaseController
         return $this->form($this->formClass, [
             'method' => 'delete',
             'url' => route("$this->routePrefix.destroy", $id),
-            'class' => 'simple-form',
             'model' => $entity
         ]);
     }
@@ -442,7 +401,7 @@ abstract class CRUDController extends BaseController
             abort(404);
         }
 
-        if (!$this->havePermission('write', $entity)) {
+        if (!$this->havePermission(self::ACTION_WRITE, $entity)) {
             abort(403);
         }
 
@@ -467,33 +426,7 @@ abstract class CRUDController extends BaseController
      * @return \Eloquent
      */
     protected function ajaxListQuery() {
-        if (!property_exists($this->entityClass, 'translatedAttributes')) {
-            $query = ($this->entityClass)::query();
-        } else {
-            /** @var Model|Translatable $entity */
-            $entity = new $this->entityClass;
-            $table = $entity->getTable();
-            $translatedAttributes = $entity->translatedAttributes;
-            $relationKey = $entity->getRelationKey();
-            $foreignModelName = $entity->getTranslationModelName();
-            /** @var Model $foreignEntity */
-            $foreignEntity = new $foreignModelName();
-            $foreignTable = $foreignEntity->getTable();
-
-            $fields = ["{$table}.*"];
-            foreach ($translatedAttributes As $translatedAttribute) {
-                $fields[] = "{$foreignTable}.{$translatedAttribute} AS {$translatedAttribute}";
-            }
-
-            $query = ($this->entityClass)::select($fields)
-                ->join($foreignTable, "{$foreignTable}.{$relationKey}", '=', "{$table}.id")
-                ->where("{$foreignTable}.locale", Config::get('translatable.locale'));
-        }
-
-        // Add orderBy
-        if (in_array('Rutorika\Sortable\SortableTrait', class_uses($this->entityClass))) {
-            $query->orderBy('position');
-        }
+        $query = ($this->entityClass)::query();
 
         // Add 'with' relations
         if (is_array($this->with) && !empty($this->with)) {
@@ -532,27 +465,8 @@ abstract class CRUDController extends BaseController
             });
 
         // Set rawColumns
-        if (!empty($this->rawColumns) && method_exists($datatable, 'rawColumns')) {
+        if (is_array($this->rawColumns) && !empty($this->rawColumns)) {
             $datatable->rawColumns($this->rawColumns);
-        }
-
-        if (property_exists($this->entityClass, 'translatedAttributes')) {
-            /** @var Model|Translatable $entity */
-            $entity = new $this->entityClass;
-            $table = $entity->getTable();
-            $translatedAttributes = $entity->translatedAttributes;
-            $relationKey = $entity->getRelationKey();
-            $foreignModelName = $entity->getTranslationModelName();
-            /** @var Model $foreignEntity */
-            $foreignEntity = new $foreignModelName();
-            $foreignTable = $foreignEntity->getTable();
-
-            foreach ($translatedAttributes As $translatedAttribute) {
-                $datatable->filterColumn($translatedAttribute, function ($query, $keyword) use ($foreignTable, $translatedAttribute) {
-                    $query->where("{$foreignTable}.{$translatedAttribute}", 'LIKE', "%{$keyword}%");
-                });
-                $datatable->orderColumn($translatedAttribute, "{$foreignTable}.{$translatedAttribute} $1");
-            }
         }
 
         return $datatable;
@@ -564,39 +478,17 @@ abstract class CRUDController extends BaseController
      * @return \Illuminate\Http\JsonResponse
      */
     public function ajaxList() {
+        if (!$this->havePermission(self::ACTION_READ, null)) {
+            abort(403);
+        }
+
         $items = $this->ajaxListQuery();
 
         return $this->ajaxListDataTable($items)->make(true);
     }
 
     /**
-     * HTTP ajax.reorder handler
-     *
-     * @throws \Exception
-     * @return void
-     */
-    public function ajaxReorder() {
-        if (!$this->isReorderable) {
-            abort(404);
-        }
-
-        /** @var Model|SortableTrait $from */
-        $origin = ($this->entityClass)::findOrFail(Input::get('id'));
-
-        /** @var Model|SortableTrait $target */
-        if (Input::get('before')) {
-            $target = ($this->entityClass)::find(Input::get('before'));
-            $origin->moveBefore($target);
-        } else if (Input::get('after')) {
-            $target = ($this->entityClass)::find(Input::get('after'));
-            $origin->moveAfter($target);
-        }
-
-        return ['status' => 0];
-    }
-
-    /**
-     * Additional check after return if user have permission
+     * Check if user have permission
      * Override this method to add checkings
      *
      * @param string $action
