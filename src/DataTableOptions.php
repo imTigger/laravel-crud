@@ -1,5 +1,5 @@
 <?php
-namespace App\Models;
+namespace Imtigger\LaravelCRUD;
 
 
 trait DataTableOptions
