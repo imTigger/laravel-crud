@@ -13,7 +13,7 @@ use Yajra\DataTables\Facades\DataTables;
 
 /**
  * Generic CRUD Controller with overridable options
- * With searchable datatables index page
+ * With searchable DataTables index page
  *
  * Interoperable with:
  * Laravel DataTables - https://github.com/yajra/laravel-datatables
@@ -35,8 +35,12 @@ abstract class CRUDController extends BaseController
 {
     use FormBuilderTrait;
 
-    const ACTION_READ = 'read';
-    const ACTION_WRITE = 'write';
+    const ACTION_INDEX = 'read';
+    const ACTION_SHOW = 'read';
+    const ACTION_CREATE = 'write';
+    const ACTION_STORE = 'write';
+    const ACTION_EDIT = 'write';
+    const ACTION_UPDATE = 'write';
 
     protected $isCreatable = true;
     protected $isEditable = true;
@@ -88,9 +92,10 @@ abstract class CRUDController extends BaseController
      * HTTP index handler
      *
      * @return \Illuminate\Http\JsonResponse
+     * @throws \Exception
      */
     public function index() {
-        if (!$this->havePermission(self::ACTION_READ, null)) {
+        if (!$this->havePermission(self::ACTION_INDEX, null)) {
             abort(403);
         }
 
@@ -102,6 +107,7 @@ abstract class CRUDController extends BaseController
      *
      * @param int $id
      * @return \Illuminate\Http\JsonResponse
+     * @throws \Exception
      */
     public function show($id) {
         $entity = ($this->entityClass)::findOrFail($id);
@@ -110,7 +116,7 @@ abstract class CRUDController extends BaseController
             abort(404);
         }
 
-        if (!$this->havePermission(self::ACTION_READ, $entity)) {
+        if (!$this->havePermission(self::ACTION_SHOW, $entity)) {
             abort(403);
         }
 
@@ -144,13 +150,14 @@ abstract class CRUDController extends BaseController
      * HTTP create handler
      *
      * @return \Illuminate\Http\JsonResponse
+     * @throws \Exception
      */
     public function create() {
         if (!$this->isCreatable) {
             abort(404);
         }
 
-        if (!$this->havePermission(self::ACTION_WRITE)) {
+        if (!$this->havePermission(self::ACTION_CREATE)) {
             abort(403);
         }
 
@@ -181,6 +188,7 @@ abstract class CRUDController extends BaseController
      * HTTP store handler
      *
      * @return \Illuminate\Http\RedirectResponse|\Illuminate\Http\JsonResponse
+     * @throws \Exception
      */
     public function store()
     {
@@ -188,7 +196,7 @@ abstract class CRUDController extends BaseController
             abort(404);
         }
 
-        if (!$this->havePermission(self::ACTION_WRITE)) {
+        if (!$this->havePermission(self::ACTION_STORE)) {
             abort(403);
         }
 
@@ -245,6 +253,7 @@ abstract class CRUDController extends BaseController
      *
      * @param int $id
      * @return \Illuminate\Http\JsonResponse
+     * @throws \Exception
      */
     public function edit($id) {
         $entity = ($this->entityClass)::findOrFail($id);
@@ -253,7 +262,7 @@ abstract class CRUDController extends BaseController
             abort(404);
         }
 
-        if (!$this->havePermission(self::ACTION_WRITE, $entity)) {
+        if (!$this->havePermission(self::ACTION_EDIT, $entity)) {
             abort(403);
         }
 
@@ -289,6 +298,7 @@ abstract class CRUDController extends BaseController
      *
      * @param int $id
      * @return \Illuminate\Http\RedirectResponse|\Illuminate\Http\JsonResponse
+     * @throws \Exception
      */
     public function update($id) {
         $entity = ($this->entityClass)::findOrFail($id);
@@ -297,7 +307,7 @@ abstract class CRUDController extends BaseController
             abort(404);
         }
 
-        if (!$this->havePermission(self::ACTION_WRITE, $entity)) {
+        if (!$this->havePermission(self::ACTION_UPDATE, $entity)) {
             abort(403);
         }
 
@@ -353,6 +363,7 @@ abstract class CRUDController extends BaseController
      *
      * @param int $id
      * @return mixed
+     * @throws \Exception
      */
     public function delete($id) {
         $entity = ($this->entityClass)::findOrFail($id);
@@ -361,7 +372,7 @@ abstract class CRUDController extends BaseController
             abort(404);
         }
 
-        if (!$this->havePermission(self::ACTION_WRITE, $entity)) {
+        if (!$this->havePermission(self::ACTION_DELETE, $entity)) {
             abort(403);
         }
 
@@ -396,6 +407,7 @@ abstract class CRUDController extends BaseController
      *
      * @param int $id
      * @return mixed
+     * @throws \Exception
      */
     public function destroy($id) {
         $entity = ($this->entityClass)::findOrFail($id);
@@ -404,7 +416,7 @@ abstract class CRUDController extends BaseController
             abort(404);
         }
 
-        if (!$this->havePermission(self::ACTION_WRITE, $entity)) {
+        if (!$this->havePermission(self::ACTION_DELETE, $entity)) {
             abort(403);
         }
 
@@ -415,9 +427,10 @@ abstract class CRUDController extends BaseController
 
     /**
      * Trigger when destroy method
-     * Override this method to add additinal operations
+     * Override this method to add additional operations
      *
      * @param Model|Translatable $entity
+     * @throws \Exception
      */
     protected function destroySave($entity) {
         $entity->delete();
@@ -426,7 +439,7 @@ abstract class CRUDController extends BaseController
     /**
      * HTTP ajax.list query builder
      *
-     * @return \Eloquent
+     * @return \Illuminate\Database\Eloquent\Builder
      */
     protected function ajaxListQuery() {
         $query = ($this->entityClass)::query();
@@ -442,7 +455,7 @@ abstract class CRUDController extends BaseController
     }
 
     /**
-     * Extra Datatable action field, append string after default actions
+     * Extra DataTables action field, append string after default actions
      *
      * @param $item
      * @return string
@@ -456,10 +469,11 @@ abstract class CRUDController extends BaseController
     }
 
     /**
-     * Construct datatable object
+     * Construct DataTable object
      *
      * @param $items
      * @return \Yajra\DataTables\DataTableAbstract
+     * @throws \Exception
      */
     protected function ajaxListDataTable($items) {
         $datatable = DataTables::of($items)
@@ -479,9 +493,10 @@ abstract class CRUDController extends BaseController
      * HTTP ajax.list handler
      *
      * @return \Illuminate\Http\JsonResponse
+     * @throws \Exception
      */
     public function ajaxList() {
-        if (!$this->havePermission(self::ACTION_READ, null)) {
+        if (!$this->havePermission(self::ACTION_INDEX, null)) {
             abort(403);
         }
 
@@ -497,6 +512,7 @@ abstract class CRUDController extends BaseController
      * @param string $action
      * @param Model $entity
      * @return bool
+     * @throws \Exception
      */
     protected function havePermission($action, $entity = null) {
         if (property_exists($this, 'permissionPrefix')) throw new \Exception('Controller defined permissionPrefix but do not have any checking. Perhaps we should add "use UseLaratustPermission"?');
