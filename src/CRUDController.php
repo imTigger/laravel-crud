@@ -67,7 +67,6 @@ abstract class CRUDController extends BaseController
         $prefix_of_prefix = substr(strrev(strstr(strrev($as), '.', false)), 0, -1);
         \Route::get("{$prefix}/delete/{id}", ['as' => "{$as}.delete", 'uses' => "{$controller}@delete", 'laroute' => true]);
         \Route::get("{$prefix}/ajax/list", ['as' => "{$as}.ajax.list", 'uses' => "{$controller}@ajaxList", 'laroute' => true]);
-        \Route::post("{$prefix}/ajax/reorder", ['as' => "$as.ajax.reorder", 'uses' => "{$controller}@ajaxReorder", 'laroute' => true]);
         \Route::resource("{$prefix}", "{$controller}", ['as' => $prefix_of_prefix]);
     }
     
