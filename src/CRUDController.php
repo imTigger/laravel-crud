@@ -3,12 +3,10 @@
 namespace Imtigger\LaravelCRUD;
 
 use Illuminate\Routing\Controller as BaseController;
-use Illuminate\Support\Facades\Config;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Input;
 use Kris\LaravelFormBuilder\Form;
 use Kris\LaravelFormBuilder\FormBuilderTrait;
-use Dimsav\Translatable\Translatable;
 use Yajra\DataTables\Facades\DataTables;
 
 /**
@@ -41,6 +39,7 @@ abstract class CRUDController extends BaseController
     const ACTION_STORE = 'write';
     const ACTION_EDIT = 'write';
     const ACTION_UPDATE = 'write';
+    const ACTION_DELETE = 'write';
 
     protected $isCreatable = true;
     protected $isEditable = true;
@@ -429,7 +428,7 @@ abstract class CRUDController extends BaseController
      * Trigger when destroy method
      * Override this method to add additional operations
      *
-     * @param Model|Translatable $entity
+     * @param Model $entity
      * @throws \Exception
      */
     protected function destroySave($entity) {
@@ -476,6 +475,7 @@ abstract class CRUDController extends BaseController
      * @throws \Exception
      */
     protected function ajaxListDataTable($items) {
+        /** @var \Yajra\DataTables\DataTableAbstract $datatable */
         $datatable = DataTables::of($items)
             ->addColumn('actions', function ($item) {
                 return $this->ajaxListActions($item);
@@ -507,7 +507,7 @@ abstract class CRUDController extends BaseController
 
     /**
      * Check if user have permission
-     * Override this method to add checkings
+     * Override this method to add checking
      *
      * @param string $action
      * @param Model $entity
