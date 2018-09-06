@@ -4,7 +4,7 @@
     "license": "mit",
     "authors": [
         {
-            "name": "Tiger",
+            "name": "Tiger Fok",
             "email": "tiger@tiger-workshop.com"
         }
     ],
@@ -22,8 +22,7 @@
     "extra": {
         "laravel": {
             "providers": [
-                "Imtigger\\LaravelCRUD\\LaravelCRUDServiceProvider",
-                "Imtigger\\LaravelCRUD\\LaravelCRUDGeneratorServiceProvider"
+                "Imtigger\\LaravelCRUD\\LaravelCRUDServiceProvider"
             ]
         }
     },
