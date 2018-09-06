@@ -500,6 +500,8 @@ abstract class CRUDController extends BaseController
      * @return bool
      */
     protected function havePermission($action, $entity = null) {
+        if (property_exists($this, 'permissionPrefix')) throw new \Exception('Controller defined permissionPrefix but do not have any checking. Perhaps we should add "use UseLaratustPermission"?');
+        
         return true;
     }
 }
