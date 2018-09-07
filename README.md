@@ -1,7 +1,7 @@
 # Laravel CRUD
 Laravel CRUD Controller
 
-- WIP, Current for internal testing
+*** Current for internal testing ***
 
 # Dependencies
 
@@ -9,6 +9,10 @@ This package depend on the following packages to generate easy-to-use yet custom
 
 - Laravel DataTables - https://github.com/yajra/laravel-datatables
 - Laravel Form Builder - https://github.com/kristijanhusak/laravel-form-builder
+
+Generator:
+
+ - Laravel CRUD Generator - https://github.com/imTigger/laravel-crud-generator
 
 Optional Features:
 
@@ -23,4 +27,4 @@ Optional Features:
 
 # Usage
 
-To be continued.
+To be finished.
