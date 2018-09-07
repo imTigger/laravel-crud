@@ -6,7 +6,7 @@ use Dimsav\Translatable\Translatable;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Input;
 
-trait UseTranslatable {
+trait CRUDTranslatable {
 
     /**
      * Trigger when store method
