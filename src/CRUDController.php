@@ -60,11 +60,11 @@ abstract class CRUDController extends BaseController
     }
 
     /**
+     * Shortcut for creating group of named route
+     *
      * @param $prefix
      * @param $controller
      * @param $as
-     *
-     * Shortcut for creating group of named route
      */
     public static function routes($prefix, $controller, $as) {
         $prefix_of_prefix = substr(strrev(strstr(strrev($as), '.', false)), 0, -1);
@@ -127,7 +127,7 @@ abstract class CRUDController extends BaseController
         $this->data['form'] = $form;
         $this->data['action'] = 'show';
 
-        return view("{$this->viewPrefix}.show", $this->data);
+        return $this->showView();
     }
 
     /**
@@ -141,9 +141,18 @@ abstract class CRUDController extends BaseController
     protected function showForm($entity, $id) {
         return $this->form($this->formClass, [
             'method' => 'get',
-            'url' => route("$this->routePrefix.show", $id),
+            'url' => route("{$this->routePrefix}.show", $id),
             'model' => $entity
         ], ['entity' => $entity]);
+    }
+
+    /**
+     * Return show view
+     * Override this method to change view
+     * @return \Illuminate\Contracts\View\Factory|\Illuminate\View\View
+     */
+    protected function showView() {
+        return view("{$this->viewPrefix}.show", $this->data);
     }
 
     /**
@@ -166,7 +175,7 @@ abstract class CRUDController extends BaseController
         $this->data['form'] = $form;
         $this->data['action'] = 'create';
 
-        return view("{$this->viewPrefix}.create", $this->data);
+        return $this->createView();
     }
 
     /**
@@ -178,10 +187,19 @@ abstract class CRUDController extends BaseController
     protected function createForm() {
         $form = $this->form($this->formClass, [
             'method' => 'post',
-            'url' => route("$this->routePrefix.store")
+            'url' => route("{$this->routePrefix}.store")
         ]);
 
         return $form;
+    }
+
+    /**
+     * Return create view
+     * Override this method to change view
+     * @return \Illuminate\Contracts\View\Factory|\Illuminate\View\View
+     */
+    protected function createView() {
+        return view("{$this->viewPrefix}.create", $this->data);
     }
 
     /**
@@ -206,9 +224,9 @@ abstract class CRUDController extends BaseController
             return redirect()->back()->withErrors($form->getErrors())->withInput();
         }
 
-        $this->storeSave();
+        $entity = $this->storeSave();
 
-        return redirect()->route("$this->routePrefix.index")->with('status', trans('laravel-crud::ui.message.create_success', ['name' => trans($this->entityName)]));
+        return $this->storeResponse($entity);
     }
 
     /**
@@ -223,6 +241,15 @@ abstract class CRUDController extends BaseController
         ]);
 
         return $form;
+    }
+
+    /**
+     * Return store response
+     * @param $entity
+     * @return \Illuminate\Http\Response
+     */
+    protected function storeResponse($entity) {
+        return redirect()->route("{$this->routePrefix}.index")->with('status', trans('laravel-crud::ui.message.create_success', ['name' => trans($this->entityName)]));
     }
 
     /**
@@ -272,7 +299,7 @@ abstract class CRUDController extends BaseController
         $this->data['form'] = $form;
         $this->data['action'] = 'edit';
 
-        return view("{$this->viewPrefix}.edit", $this->data);
+        return $this->editView($entity);
     }
 
     /**
@@ -286,11 +313,20 @@ abstract class CRUDController extends BaseController
     protected function editForm($entity) {
         $form = $this->form($this->formClass, [
             'method' => 'patch',
-            'url' => route("$this->routePrefix.update", $entity->id),
+            'url' => route("{$this->routePrefix}.update", $entity->id),
             'model' => $entity
         ], ['entity' => $entity]);
 
         return $form;
+    }
+
+    /**
+     * Return edit view
+     * Override this method to change view
+     * @return \Illuminate\Contracts\View\Factory|\Illuminate\View\View
+     */
+    protected function editView($entity) {
+        return view("{$this->viewPrefix}.edit", $this->data);
     }
 
     /**
@@ -317,9 +353,9 @@ abstract class CRUDController extends BaseController
             return redirect()->back()->withErrors($form->getErrors())->withInput();
         }
 
-        $this->updateSave($entity);
+        $entity = $this->updateSave($entity);
 
-        return redirect()->route("$this->routePrefix.index")->with('status', trans('laravel-crud::ui.message.edit_success', ['name' => trans($this->entityName)]));
+        return $this->updateResponse($entity);
     }
 
     /**
@@ -335,6 +371,15 @@ abstract class CRUDController extends BaseController
         ], ['entity' => $entity]);
 
         return $form;
+    }
+
+    /**
+     * Return store response
+     * @param $entity
+     * @return \Illuminate\Http\Response
+     */
+    protected function updateResponse($entity) {
+        return redirect()->route("{$this->routePrefix}.index")->with('status', trans('laravel-crud::ui.message.edit_success', ['name' => trans($this->entityName)]));;
     }
 
     /**
@@ -383,7 +428,7 @@ abstract class CRUDController extends BaseController
         $this->data['form'] = $form;
         $this->data['action'] = 'show';
 
-        return view("{$this->viewPrefix}.delete", $this->data);
+        return $this->deleteView($entity);
     }
 
     /**
@@ -397,9 +442,17 @@ abstract class CRUDController extends BaseController
     protected function deleteForm($entity, $id) {
         return $this->form($this->formClass, [
             'method' => 'delete',
-            'url' => route("$this->routePrefix.destroy", $id),
+            'url' => route("{$this->routePrefix}.destroy", $id),
             'model' => $entity
         ], ['entity' => $entity]);
+    }
+
+    /**
+     * Return delete view
+     * @return \Illuminate\Contracts\View\Factory|\Illuminate\View\View
+     */
+    protected function deleteView($entity) {
+        return view("{$this->viewPrefix}.delete", $this->data);
     }
 
     /**
@@ -422,7 +475,16 @@ abstract class CRUDController extends BaseController
 
         $this->destroySave($entity);
 
-        return redirect()->route("$this->routePrefix.index")->with('status', trans('laravel-crud::ui.message.delete_success', ['name' => trans($this->entityName)]));
+        return $this->destroyResponse($entity);
+    }
+
+    /**
+     * Return destroy response
+     * @param $entity
+     * @return \Illuminate\Http\Response
+     */
+    protected function destroyResponse($entity) {
+        return redirect()->route("{$this->routePrefix}.index")->with('status', trans('laravel-crud::ui.message.delete_success', ['name' => trans($this->entityName)]));
     }
 
     /**
@@ -438,6 +500,7 @@ abstract class CRUDController extends BaseController
 
     /**
      * HTTP ajax.list query builder
+     * Ovrrride to modify query
      *
      * @return \Illuminate\Database\Eloquent\Builder
      */
@@ -455,7 +518,8 @@ abstract class CRUDController extends BaseController
     }
 
     /**
-     * Extra DataTables action field, append string after default actions
+     * Extra DataTables action field
+     * Override this method to append extra actions after default actions
      *
      * @param $item
      * @return string
@@ -470,6 +534,7 @@ abstract class CRUDController extends BaseController
 
     /**
      * Construct DataTable object
+     * Override this method to modify datatable object
      *
      * @param $items
      * @return \Yajra\DataTables\DataTableAbstract
