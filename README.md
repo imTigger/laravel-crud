@@ -1,7 +1,11 @@
 # Laravel CRUD
 Laravel CRUD Controller
 
-*** Current for internal testing ***
+This package provide a base Controller (CRUDController) that implement HTTP REST methods.
+
+CRUDController is highly customizeable by overriding its methods.
+
+Use with another package "Laravel CRUD Generator" to generate controller, model, view, form and migration, in single artisan command.
 
 # Dependencies
 
