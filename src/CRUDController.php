@@ -143,7 +143,7 @@ abstract class CRUDController extends BaseController
             'method' => 'get',
             'url' => route("{$this->routePrefix}.show", $id),
             'model' => $entity
-        ], ['entity' => $entity]);
+        ], ['entity' => $entity, 'action' => 'show']);
     }
 
     /**
@@ -188,7 +188,7 @@ abstract class CRUDController extends BaseController
         $form = $this->form($this->formClass, [
             'method' => 'post',
             'url' => route("{$this->routePrefix}.store")
-        ]);
+        ], ['action' => 'create']);
 
         return $form;
     }
@@ -238,7 +238,7 @@ abstract class CRUDController extends BaseController
     protected function storeForm() {
         $form = $this->form($this->formClass, [
             'method' => 'post'
-        ]);
+        ], ['action' => 'store']);
 
         return $form;
     }
@@ -315,7 +315,7 @@ abstract class CRUDController extends BaseController
             'method' => 'patch',
             'url' => route("{$this->routePrefix}.update", $entity->id),
             'model' => $entity
-        ], ['entity' => $entity]);
+        ], ['entity' => $entity, 'action' => 'edit']);
 
         return $form;
     }
