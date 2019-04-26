@@ -512,7 +512,7 @@ abstract class CRUDController extends BaseController
      * @return \Illuminate\Database\Eloquent\Builder
      */
     protected function ajaxListQuery() {
-        $query = ($this->entityClass)::query();
+        $query = ($this->entityClass)::select((new $this->entityClass)->getTable() . '.*');
 
         // Add 'with' relations
         if (is_array($this->with) && !empty($this->with)) {
