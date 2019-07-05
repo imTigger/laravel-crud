@@ -102,7 +102,7 @@ abstract class CRUDController extends BaseController
      * @throws \Exception
      */
     public function index() {
-        if (!$this->havePermission(self::ACTION_TYPE_INDEX, null)) {
+        if (!$this->havePermission(static::ACTION_TYPE_INDEX, null)) {
             abort(403);
         }
 
@@ -123,7 +123,7 @@ abstract class CRUDController extends BaseController
             abort(404);
         }
 
-        if (!$this->havePermission(self::ACTION_TYPE_SHOW, $entity)) {
+        if (!$this->havePermission(static::ACTION_TYPE_SHOW, $entity)) {
             abort(403);
         }
 
@@ -132,7 +132,7 @@ abstract class CRUDController extends BaseController
 
         $this->data['entity'] = $entity;
         $this->data['form'] = $form;
-        $this->data['action'] = self::ACTION_SHOW;
+        $this->data['action'] = static::ACTION_SHOW;
 
         return $this->showView();
     }
@@ -150,7 +150,7 @@ abstract class CRUDController extends BaseController
             'method' => 'get',
             'url' => route("{$this->routePrefix}.show", $id),
             'model' => $entity
-        ], ['entity' => $entity, 'action' => self::ACTION_SHOW]);
+        ], ['entity' => $entity, 'action' => static::ACTION_SHOW]);
     }
 
     /**
@@ -173,14 +173,14 @@ abstract class CRUDController extends BaseController
             abort(404);
         }
 
-        if (!$this->havePermission(self::ACTION_TYPE_CREATE)) {
+        if (!$this->havePermission(static::ACTION_TYPE_CREATE)) {
             abort(403);
         }
 
         $form = $this->createForm();
 
         $this->data['form'] = $form;
-        $this->data['action'] = self::ACTION_CREATE;
+        $this->data['action'] = static::ACTION_CREATE;
 
         return $this->createView();
     }
@@ -195,7 +195,7 @@ abstract class CRUDController extends BaseController
         $form = $this->form($this->formClass, [
             'method' => 'post',
             'url' => route("{$this->routePrefix}.store")
-        ], ['action' => self::ACTION_CREATE]);
+        ], ['action' => static::ACTION_CREATE]);
 
         return $form;
     }
@@ -221,7 +221,7 @@ abstract class CRUDController extends BaseController
             abort(404);
         }
 
-        if (!$this->havePermission(self::ACTION_TYPE_STORE)) {
+        if (!$this->havePermission(static::ACTION_TYPE_STORE)) {
             abort(403);
         }
 
@@ -245,7 +245,7 @@ abstract class CRUDController extends BaseController
     protected function storeForm() {
         $form = $this->form($this->formClass, [
             'method' => 'post'
-        ], ['action' => self::ACTION_STORE]);
+        ], ['action' => static::ACTION_STORE]);
 
         return $form;
     }
@@ -296,7 +296,7 @@ abstract class CRUDController extends BaseController
             abort(404);
         }
 
-        if (!$this->havePermission(self::ACTION_TYPE_EDIT, $entity)) {
+        if (!$this->havePermission(static::ACTION_TYPE_EDIT, $entity)) {
             abort(403);
         }
 
@@ -304,7 +304,7 @@ abstract class CRUDController extends BaseController
 
         $this->data['entity'] = $entity;
         $this->data['form'] = $form;
-        $this->data['action'] = self::ACTION_EDIT;
+        $this->data['action'] = static::ACTION_EDIT;
 
         return $this->editView($entity);
     }
@@ -322,7 +322,7 @@ abstract class CRUDController extends BaseController
             'method' => 'patch',
             'url' => route("{$this->routePrefix}.update", $entity->id),
             'model' => $entity
-        ], ['entity' => $entity, 'action' => self::ACTION_EDIT]);
+        ], ['entity' => $entity, 'action' => static::ACTION_EDIT]);
 
         return $form;
     }
@@ -350,7 +350,7 @@ abstract class CRUDController extends BaseController
             abort(404);
         }
 
-        if (!$this->havePermission(self::ACTION_TYPE_UPDATE, $entity)) {
+        if (!$this->havePermission(static::ACTION_TYPE_UPDATE, $entity)) {
             abort(403);
         }
 
@@ -375,7 +375,7 @@ abstract class CRUDController extends BaseController
         $form = $this->form($this->formClass, [
             'method' => 'patch',
             'model' => $entity
-        ], ['entity' => $entity, 'action' => self::ACTION_UPDATE]);
+        ], ['entity' => $entity, 'action' => static::ACTION_UPDATE]);
 
         return $form;
     }
@@ -424,7 +424,7 @@ abstract class CRUDController extends BaseController
             abort(404);
         }
 
-        if (!$this->havePermission(self::ACTION_TYPE_DELETE, $entity)) {
+        if (!$this->havePermission(static::ACTION_TYPE_DELETE, $entity)) {
             abort(403);
         }
 
@@ -433,7 +433,7 @@ abstract class CRUDController extends BaseController
 
         $this->data['entity'] = $entity;
         $this->data['form'] = $form;
-        $this->data['action'] = self::ACTION_DELETE;
+        $this->data['action'] = static::ACTION_DELETE;
 
         return $this->deleteView($entity);
     }
@@ -451,7 +451,7 @@ abstract class CRUDController extends BaseController
             'method' => 'delete',
             'url' => route("{$this->routePrefix}.destroy", $id),
             'model' => $entity
-        ], ['entity' => $entity, 'action' => self::ACTION_DELETE]);
+        ], ['entity' => $entity, 'action' => static::ACTION_DELETE]);
     }
 
     /**
@@ -476,7 +476,7 @@ abstract class CRUDController extends BaseController
             abort(404);
         }
 
-        if (!$this->havePermission(self::ACTION_TYPE_DELETE, $entity)) {
+        if (!$this->havePermission(static::ACTION_TYPE_DELETE, $entity)) {
             abort(403);
         }
 
@@ -569,7 +569,7 @@ abstract class CRUDController extends BaseController
      * @throws \Exception
      */
     public function ajaxList() {
-        if (!$this->havePermission(self::ACTION_TYPE_INDEX, null)) {
+        if (!$this->havePermission(static::ACTION_TYPE_INDEX, null)) {
             abort(403);
         }
 
