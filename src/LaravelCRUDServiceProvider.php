@@ -18,7 +18,5 @@ class LaravelCRUDServiceProvider extends ServiceProvider
     public function boot()
     {
         $this->loadTranslationsFrom(__DIR__.'/resources/lang', 'laravel-crud');
-        $this->loadViewsFrom(__DIR__ . '/resources/views', 'laravel-crud');
     }
-
 }
