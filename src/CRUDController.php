@@ -4,7 +4,7 @@ namespace Imtigger\LaravelCRUD;
 
 use Illuminate\Routing\Controller as BaseController;
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Support\Facades\Input;
+use Illuminate\Support\Facades\Request;
 use Kris\LaravelFormBuilder\Form;
 use Kris\LaravelFormBuilder\FormBuilderTrait;
 use Yajra\DataTables\Facades\DataTables;
@@ -62,7 +62,7 @@ abstract class CRUDController extends BaseController
         if (!property_exists($this, 'entityName')) throw new \Exception("entityName not defined");
         if (!property_exists($this, 'entityClass')) throw new \Exception("entityClass not defined");
         if (($this->isCreatable || $this->isEditable || $this->isViewable || $this->isDeletable) && !property_exists($this, 'formClass')) throw new \Exception("formClass not defined");
-        
+
         $this->shareViewData();
     }
 
@@ -80,7 +80,7 @@ abstract class CRUDController extends BaseController
         \Route::post("{$prefix}/ajax/reorder", ['as' => "{$as}.ajax.reorder", 'uses' => "{$controller}@ajaxReorder"]);
         \Route::resource("{$prefix}", "{$controller}", ['as' => $prefix_of_prefix]);
     }
-    
+
     /**
      * Share data with views
      */
@@ -272,8 +272,8 @@ abstract class CRUDController extends BaseController
         $fillables = collect($entity->getFillable());
 
         foreach ($fillables As $fillable) {
-            if (Input::exists($fillable)) {
-                $entity->$fillable = Input::get($fillable);
+            if (Request::exists($fillable)) {
+                $entity->$fillable = Request::input($fillable);
             }
         }
 
@@ -400,8 +400,8 @@ abstract class CRUDController extends BaseController
         $fillables = collect($entity->getFillable());
 
         foreach ($fillables As $fillable) {
-            if (Input::exists($fillable)) {
-                $entity->$fillable = Input::get($fillable);
+            if (Request::exists($fillable)) {
+                $entity->$fillable = Request::input($fillable);
             }
         }
 
@@ -589,7 +589,7 @@ abstract class CRUDController extends BaseController
      */
     protected function havePermission($action, $entity = null) {
         if (property_exists($this, 'permissionPrefix')) throw new \Exception('Controller defined permissionPrefix but do not have any checking. Perhaps we should add "use UseLaratustPermission"?');
-        
+
         return true;
     }
 }
