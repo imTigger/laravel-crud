@@ -25,7 +25,7 @@ use Yajra\DataTables\Facades\DataTables;
  * @property string $formClass Laravel Form Builder Class
  * @property bool $isCreatable Enable create operation, default: true
  * @property bool $isEditable Enable edit operation, default: true
- * @property bool $isShowable Enable view operation, default: true
+ * @property bool $isShowable Enable show operation, default: true
  * @property bool $isDeletable Enable delete operation, default: false
  * @property array $rawColumns Columns that do not enable XSS protection by Laravel DataTables (7.0+)
  */
@@ -56,11 +56,11 @@ abstract class CRUDController extends BaseController
     protected $editButtonClass = 'btn btn-xs btn-primary';
     protected $deleteButtonClass = 'btn btn-xs btn-danger';
 
-    protected $showButtonTitle = 'laravel-crud::ui.button.view';
+    protected $showButtonTitle = 'laravel-crud::ui.button.show';
     protected $editButtonTitle = 'laravel-crud::ui.button.edit';
     protected $deleteButtonTitle = 'laravel-crud::ui.button.delete';
 
-    protected $showButtonText = 'laravel-crud::ui.button.view';
+    protected $showButtonText = 'laravel-crud::ui.button.show';
     protected $editButtonText = 'laravel-crud::ui.button.edit';
     protected $deleteButtonText = 'laravel-crud::ui.button.delete';
 

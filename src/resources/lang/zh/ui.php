@@ -7,7 +7,7 @@ return array (
     'delete' => '删除',
     'save' => '储存',
     'create' => '新增',
-    'view' => '查看',
+    'show' => '查看',
   ),
   'action' => 
   array (
