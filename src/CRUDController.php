@@ -56,6 +56,10 @@ abstract class CRUDController extends BaseController
     protected $editButtonClass = 'btn btn-xs btn-primary';
     protected $deleteButtonClass = 'btn btn-xs btn-danger';
 
+    protected $showButtonTitle = 'laravel-crud::ui.button.view';
+    protected $editButtonTitle = 'laravel-crud::ui.button.edit';
+    protected $deleteButtonTitle = 'laravel-crud::ui.button.delete';
+
     protected $showButtonText = 'laravel-crud::ui.button.view';
     protected $editButtonText = 'laravel-crud::ui.button.edit';
     protected $deleteButtonText = 'laravel-crud::ui.button.delete';
@@ -580,9 +584,9 @@ abstract class CRUDController extends BaseController
     protected function ajaxListActions($item)
     {
         return
-            ($this->isViewable ? '<a href="' . route("{$this->routePrefix}.show", [$item->id]) .'" class="' . $this->showButtonClass . '"><i class="' . $this->showButtonIconClass . '"></i> ' . trans($this->showButtonText) . '</a> ' : '') .
-            ($this->isEditable ? '<a href="' . route("{$this->routePrefix}.edit", [$item->id]) .'" class="' . $this->editButtonClass . '"><i class="' . $this->editButtonIconClass . '"></i> ' . trans($this->editButtonText) . '</a> ' : '') .
-            ($this->isDeletable ? '<a href="' . route("{$this->routePrefix}.delete", [$item->id]) .'" class="' . $this->deleteButtonClass . '"><i class="' . $this->deleteButtonIconClass . '"></i> ' . trans($this->deleteButtonText) . '</a> ' : '');
+            ($this->isViewable ? '<a title="' . trans($this->showButtonTitle) . '" href="' . route("{$this->routePrefix}.show", [$item->id]) .'" class="' . $this->showButtonClass . '"><i class="' . $this->showButtonIconClass . '"></i> ' . trans($this->showButtonText) . '</a> ' : '') .
+            ($this->isEditable ? '<a title="' . trans($this->editButtonTitle) . '" href="' . route("{$this->routePrefix}.edit", [$item->id]) .'" class="' . $this->editButtonClass . '"><i class="' . $this->editButtonIconClass . '"></i> ' . trans($this->editButtonText) . '</a> ' : '') .
+            ($this->isDeletable ? '<a title="' . trans($this->deleteButtonTitle) . '" href="' . route("{$this->routePrefix}.delete", [$item->id]) .'" class="' . $this->deleteButtonClass . '"><i class="' . $this->deleteButtonIconClass . '"></i> ' . trans($this->deleteButtonText) . '</a> ' : '');
     }
 
     /**
