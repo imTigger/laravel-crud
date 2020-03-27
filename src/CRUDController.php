@@ -25,7 +25,7 @@ use Yajra\DataTables\Facades\DataTables;
  * @property string $formClass Laravel Form Builder Class
  * @property bool $isCreatable Enable create operation, default: true
  * @property bool $isEditable Enable edit operation, default: true
- * @property bool $isViewable Enable view operation, default: true
+ * @property bool $isShowable Enable view operation, default: true
  * @property bool $isDeletable Enable delete operation, default: false
  * @property array $rawColumns Columns that do not enable XSS protection by Laravel DataTables (7.0+)
  */
@@ -66,7 +66,7 @@ abstract class CRUDController extends BaseController
 
     protected $isCreatable = true;
     protected $isEditable = true;
-    protected $isViewable = true;
+    protected $isShowable = true;
     protected $isDeletable = false;
     protected $rawColumns = ['actions'];
     protected $makeHiddenColumns = [];
@@ -80,7 +80,7 @@ abstract class CRUDController extends BaseController
         if (!property_exists($this, 'routePrefix')) throw new \Exception("entityClass not defined");
         if (!property_exists($this, 'entityName')) throw new \Exception("entityName not defined");
         if (!property_exists($this, 'entityClass')) throw new \Exception("entityClass not defined");
-        if (($this->isCreatable || $this->isEditable || $this->isViewable || $this->isDeletable) && !property_exists($this, 'formClass')) throw new \Exception("formClass not defined");
+        if (($this->isCreatable || $this->isEditable || $this->isShowable || $this->isDeletable) && !property_exists($this, 'formClass')) throw new \Exception("formClass not defined");
 
         $this->shareViewData();
     }
@@ -110,7 +110,7 @@ abstract class CRUDController extends BaseController
 
         $this->data['isCreatable'] = $this->isCreatable;
         $this->data['isEditable'] = $this->isEditable;
-        $this->data['isViewable'] = $this->isViewable;
+        $this->data['isShowable'] = $this->isShowable;
         $this->data['isDeletable'] = $this->isDeletable;
     }
 
@@ -138,7 +138,7 @@ abstract class CRUDController extends BaseController
     public function show($id) {
         $entity = ($this->entityClass)::findOrFail($id);
 
-        if (!$this->isViewable) {
+        if (!$this->isShowable) {
             abort(404);
         }
 
@@ -584,7 +584,7 @@ abstract class CRUDController extends BaseController
     protected function ajaxListActions($item)
     {
         return
-            ($this->isViewable ? '<a title="' . trans($this->showButtonTitle) . '" href="' . route("{$this->routePrefix}.show", [$item->id]) .'" class="' . $this->showButtonClass . '"><i class="' . $this->showButtonIconClass . '"></i> ' . trans($this->showButtonText) . '</a> ' : '') .
+            ($this->isShowable ? '<a title="' . trans($this->showButtonTitle) . '" href="' . route("{$this->routePrefix}.show", [$item->id]) .'" class="' . $this->showButtonClass . '"><i class="' . $this->showButtonIconClass . '"></i> ' . trans($this->showButtonText) . '</a> ' : '') .
             ($this->isEditable ? '<a title="' . trans($this->editButtonTitle) . '" href="' . route("{$this->routePrefix}.edit", [$item->id]) .'" class="' . $this->editButtonClass . '"><i class="' . $this->editButtonIconClass . '"></i> ' . trans($this->editButtonText) . '</a> ' : '') .
             ($this->isDeletable ? '<a title="' . trans($this->deleteButtonTitle) . '" href="' . route("{$this->routePrefix}.delete", [$item->id]) .'" class="' . $this->deleteButtonClass . '"><i class="' . $this->deleteButtonIconClass . '"></i> ' . trans($this->deleteButtonText) . '</a> ' : '');
     }
