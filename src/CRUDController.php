@@ -25,7 +25,7 @@ use Yajra\DataTables\Facades\DataTables;
  * @property string $formClass Laravel Form Builder Class
  * @property bool $isCreatable Enable create operation, default: true
  * @property bool $isEditable Enable edit operation, default: true
- * @property bool $isViewable Enable view operation, default: true
+ * @property bool $isShowable Enable show operation, default: true
  * @property bool $isDeletable Enable delete operation, default: false
  * @property array $rawColumns Columns that do not enable XSS protection by Laravel DataTables (7.0+)
  */
@@ -48,12 +48,31 @@ abstract class CRUDController extends BaseController
     const ACTION_TYPE_UPDATE = 'write';
     const ACTION_TYPE_DELETE = 'write';
 
+    protected $showButtonIconClass = 'glyphicon glyphicon-eye-open';
+    protected $editButtonIconClass = 'glyphicon glyphicon-edit';
+    protected $deleteButtonIconClass = 'glyphicon glyphicon-trash';
+
+    protected $showButtonClass = 'btn btn-xs btn-success';
+    protected $editButtonClass = 'btn btn-xs btn-primary';
+    protected $deleteButtonClass = 'btn btn-xs btn-danger';
+
+    protected $showButtonTitle = 'laravel-crud::ui.button.show';
+    protected $editButtonTitle = 'laravel-crud::ui.button.edit';
+    protected $deleteButtonTitle = 'laravel-crud::ui.button.delete';
+
+    protected $showButtonText = 'laravel-crud::ui.button.show';
+    protected $editButtonText = 'laravel-crud::ui.button.edit';
+    protected $deleteButtonText = 'laravel-crud::ui.button.delete';
+
     protected $isCreatable = true;
     protected $isEditable = true;
-    protected $isViewable = true;
+    protected $isShowable = true;
     protected $isDeletable = false;
     protected $rawColumns = ['actions'];
+    protected $makeHiddenColumns = [];
+    protected $makeVisibleColumns = [];
     protected $with = [];
+    protected $fillable = [];
     protected $data = [];
 
     public function __construct() {
@@ -61,7 +80,7 @@ abstract class CRUDController extends BaseController
         if (!property_exists($this, 'routePrefix')) throw new \Exception("entityClass not defined");
         if (!property_exists($this, 'entityName')) throw new \Exception("entityName not defined");
         if (!property_exists($this, 'entityClass')) throw new \Exception("entityClass not defined");
-        if (($this->isCreatable || $this->isEditable || $this->isViewable || $this->isDeletable) && !property_exists($this, 'formClass')) throw new \Exception("formClass not defined");
+        if (($this->isCreatable || $this->isEditable || $this->isShowable || $this->isDeletable) && !property_exists($this, 'formClass')) throw new \Exception("formClass not defined");
 
         $this->shareViewData();
     }
@@ -91,7 +110,7 @@ abstract class CRUDController extends BaseController
 
         $this->data['isCreatable'] = $this->isCreatable;
         $this->data['isEditable'] = $this->isEditable;
-        $this->data['isViewable'] = $this->isViewable;
+        $this->data['isShowable'] = $this->isShowable;
         $this->data['isDeletable'] = $this->isDeletable;
     }
 
@@ -119,7 +138,7 @@ abstract class CRUDController extends BaseController
     public function show($id) {
         $entity = ($this->entityClass)::findOrFail($id);
 
-        if (!$this->isViewable) {
+        if (!$this->isShowable) {
             abort(404);
         }
 
@@ -269,7 +288,7 @@ abstract class CRUDController extends BaseController
         /** @var Model $entity */
         $entity = new $this->entityClass;
 
-        $fillables = collect($entity->getFillable());
+        $fillables = isset($this->fillable) && is_array($this->fillable) && !empty($this->fillable) ? $this->fillable : $entity->getFillable();
 
         foreach ($fillables As $fillable) {
             if (Request::exists($fillable)) {
@@ -277,9 +296,20 @@ abstract class CRUDController extends BaseController
             }
         }
 
+        $this->storeSavePreprocess($entity);
+
         $entity->save();
 
         return $entity;
+    }
+
+    /**
+     * Override this method to add extra processing before calling save()
+     *
+     * @param Model $entity
+     */
+    protected function storeSavePreprocess(&$entity) {
+        $this->savePreprocess($entity);
     }
 
     /**
@@ -397,7 +427,7 @@ abstract class CRUDController extends BaseController
      * @return Model $entity
      */
     protected function updateSave($entity) {
-        $fillables = collect($entity->getFillable());
+        $fillables = isset($this->fillable) && is_array($this->fillable) && !empty($this->fillable) ? $this->fillable : $entity->getFillable();
 
         foreach ($fillables As $fillable) {
             if (Request::exists($fillable)) {
@@ -405,9 +435,29 @@ abstract class CRUDController extends BaseController
             }
         }
 
+        $this->updateSavePreprocess($entity);
+
         $entity->save();
 
         return $entity;
+    }
+
+    /**
+     * Override this method to add extra processing before calling save()
+     *
+     * @param Model $entity
+     */
+    protected function updateSavePreprocess(&$entity) {
+        $this->savePreprocess($entity);
+    }
+
+    /**
+     * Override this method to add extra processing before calling save()
+     *
+     * @param Model $entity
+     */
+    protected function savePreprocess(&$entity) {
+
     }
 
     /**
@@ -534,9 +584,9 @@ abstract class CRUDController extends BaseController
     protected function ajaxListActions($item)
     {
         return
-            ($this->isViewable ? '<a href="' . route("{$this->routePrefix}.show", [$item->id]) .'" class="btn btn-xs btn-success"><i class="glyphicon glyphicon-eye-open"></i> ' . trans('laravel-crud::ui.button.view') . '</a> ' : '') .
-            ($this->isEditable ? '<a href="' . route("{$this->routePrefix}.edit", [$item->id]) .'" class="btn btn-xs btn-primary"><i class="glyphicon glyphicon-edit"></i> ' . trans('laravel-crud::ui.button.edit') . '</a> ' : '') .
-            ($this->isDeletable ? '<a href="' . route("{$this->routePrefix}.delete", [$item->id]) .'" class="btn btn-xs btn-danger"><i class="glyphicon glyphicon-trash"></i> ' . trans('laravel-crud::ui.button.delete') . '</a> ' : '');
+            ($this->isShowable ? '<a title="' . trans($this->showButtonTitle) . '" href="' . route("{$this->routePrefix}.show", [$item->id]) .'" class="' . $this->showButtonClass . '"><i class="' . $this->showButtonIconClass . '"></i> ' . trans($this->showButtonText) . '</a> ' : '') .
+            ($this->isEditable ? '<a title="' . trans($this->editButtonTitle) . '" href="' . route("{$this->routePrefix}.edit", [$item->id]) .'" class="' . $this->editButtonClass . '"><i class="' . $this->editButtonIconClass . '"></i> ' . trans($this->editButtonText) . '</a> ' : '') .
+            ($this->isDeletable ? '<a title="' . trans($this->deleteButtonTitle) . '" href="' . route("{$this->routePrefix}.delete", [$item->id]) .'" class="' . $this->deleteButtonClass . '"><i class="' . $this->deleteButtonIconClass . '"></i> ' . trans($this->deleteButtonText) . '</a> ' : '');
     }
 
     /**
@@ -557,6 +607,16 @@ abstract class CRUDController extends BaseController
         // Set rawColumns
         if (is_array($this->rawColumns) && !empty($this->rawColumns)) {
             $datatable->rawColumns($this->rawColumns);
+        }
+
+        // Set makeHidden
+        if (is_array($this->makeHiddenColumns) && !empty($this->makeHiddenColumns)) {
+            $datatable->makeHidden($this->makeHiddenColumns);
+        }
+
+        // Set makeVisible
+        if (is_array($this->makeVisibleColumns) && !empty($this->makeVisibleColumns)) {
+            $datatable->makeVisible($this->makeVisibleColumns);
         }
 
         return $datatable;

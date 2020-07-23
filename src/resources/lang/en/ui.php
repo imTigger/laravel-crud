@@ -7,7 +7,7 @@ return array (
     'delete' => 'Delete',
     'save' => 'Save',
     'create' => 'Create',
-    'view' => 'View',
+    'show' => 'View',
   ),
   'action' => 
   array (
@@ -22,7 +22,7 @@ return array (
     'delete_success' => ':name deleted successfully',
     'edit_success' => ':name edited successfully',
     'edit_fail' => ':name deleted failed',
-	'create_fail' => ':name create failed',
+    'create_fail' => ':name create failed',
     'delete_fail' => ':name delete failed',    
   )
 );
